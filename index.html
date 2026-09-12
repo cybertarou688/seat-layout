@@ -730,12 +730,13 @@
       座席番号は左上から右方向へ1〜10、次の段は11〜20…と続き、右下の40番まで振っています。<br>
       枠でつながった2マスが1つの机（2人がけ）です。全20机 × 2席 ＝ 40席。<br>
       斜線の席（29、30、35〜40）は使用できません。<br>
-      各席の下にあるプルダウンから選択者を選ぶと、その席が赤色になり名前が表示されます。すでに他の席に割り当て済みの人は選べません。
+      各席の下にあるプルダウンから選択者を選ぶと、その席が赤色になり名前が表示されます。すでに他の席に割り当て済みの人は選べません。<br>
+      設定した座席は毎日0:00にリセットされます。
     </p>
 
     <div class="panels">
       <div class="panel">
-        <p class="panel-title">選択者一覧<span class="panel-count" id="roster-count"></span></p>
+        <p class="panel-title">出席者一覧<span class="panel-count" id="roster-count"></span></p>
         <ul class="roster-list" id="roster-list"></ul>
         <p class="roster-hint">※ people.js を編集すると一覧を変更できます（例：「1 太郎,2 次,3 三郎,4 四郎,5 五郎」）。割り当て済みの項目には選択時刻が表示されます。</p>
       </div>
