@@ -201,6 +201,39 @@
     margin-left: 6px;
   }
 
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 10px;
+  }
+
+  .panel-header .panel-title { margin: 0; }
+
+  .clear-button {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #A83A2C;
+    background: #FFFFFF;
+    border: 1px solid #E3B3A6;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .clear-button:hover { background: #FBEDE9; border-color: #C0392B; }
+  .clear-button:active { transform: scale(0.98); }
+  .clear-button:disabled {
+    color: #A79C87;
+    background: #F1ECDF;
+    border-color: #E4E0D4;
+    cursor: not-allowed;
+  }
+
   .roster-list {
     list-style: none;
     margin: 0;
@@ -330,6 +363,67 @@
   .roulette-button:disabled {
     background: #C9BFA9;
     cursor: not-allowed;
+  }
+
+  .roulette-button-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .roulette-bulk-button {
+    background: #6B4E1F;
+  }
+
+  .roulette-bulk-button:hover { background: #7E5C26; }
+
+  .roulette-divider {
+    margin: 16px 0;
+    border: none;
+    border-top: 1px dashed var(--desk-border-light);
+  }
+
+  .roulette-bulk-results {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    max-height: 260px;
+    overflow-y: auto;
+    text-align: left;
+    border: 1px solid #EFE9DA;
+    border-radius: 4px;
+  }
+
+  .roulette-bulk-results:empty { display: none; }
+
+  .roulette-bulk-results li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #F1ECDF;
+    animation: roulette-row-in 0.2s ease;
+  }
+
+  .roulette-bulk-results li:last-child { border-bottom: none; }
+
+  .roulette-bulk-results .rb-name { color: var(--ink); }
+
+  .roulette-bulk-results .rb-seat {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: #C0392B;
+    flex-shrink: 0;
+  }
+
+  .roulette-bulk-results .rb-seat.rb-none { color: #A79C87; font-family: inherit; font-weight: 400; }
+
+  @keyframes roulette-row-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .roulette-overlay {
@@ -734,19 +828,25 @@
       設定した座席は毎日0:00にリセットされます。
     </p>
 
-    <div class="panels">
-      <div class="panel">
-        <p class="panel-title">出席者一覧<span class="panel-count" id="roster-count"></span></p>
-        <ul class="roster-list" id="roster-list"></ul>
-        <p class="roster-hint">※ people.js を編集すると一覧を変更できます（例：「1 太郎,2 次,3 三郎,4 四郎,5 五郎」）。割り当て済みの項目には選択時刻が表示されます。</p>
+    <div class="roulette-panel">
+      <p class="panel-title">席順おまかせルーレット</p>
+      <p class="roulette-hint">席順にこだわりがない人向けに、空いている席の中からランダムに1席を決めます。<br>対象者を選んでからルーレットを回すか、まだ席が決まっていない人をまとめて一括で決めることもできます。</p>
+      <select class="roulette-person-select" id="roulette-person-select"></select>
+      <div class="roulette-button-row">
+        <button type="button" class="roulette-button" id="roulette-button">🎰 ルーレットで決める</button>
+        <button type="button" class="roulette-button roulette-bulk-button" id="roulette-bulk-button">🎲 未選択者を一括で決める</button>
       </div>
     </div>
 
-    <div class="roulette-panel">
-      <p class="panel-title">席順おまかせルーレット</p>
-      <p class="roulette-hint">席順にこだわりがない人向けに、空いている席の中からランダムに1席を決めます。<br>対象者を選んでからルーレットを回してください。</p>
-      <select class="roulette-person-select" id="roulette-person-select"></select>
-      <button type="button" class="roulette-button" id="roulette-button">🎰 ルーレットで決める</button>
+    <div class="panels">
+      <div class="panel">
+        <div class="panel-header">
+          <p class="panel-title">出席者一覧<span class="panel-count" id="roster-count"></span></p>
+          <button type="button" class="clear-button" id="clear-button">🗑 座席をクリア</button>
+        </div>
+        <ul class="roster-list" id="roster-list"></ul>
+        <p class="roster-hint">※ people.js を編集すると一覧を変更できます（例：「1 太郎,2 次,3 三郎,4 四郎,5 五郎」）。割り当て済みの項目には選択時刻が表示されます。</p>
+      </div>
     </div>
   </div>
 
@@ -754,6 +854,7 @@
     <div class="roulette-modal">
       <p class="roulette-person" id="roulette-person"></p>
       <p class="roulette-number" id="roulette-number">--</p>
+      <ul class="roulette-bulk-results" id="roulette-bulk-results"></ul>
       <button type="button" class="roulette-close" id="roulette-close">閉じる</button>
     </div>
   </div>
@@ -782,7 +883,8 @@
 
     function updateDateDisplay() {
       var today = new Date();
-      dateEl.textContent = today.getFullYear() + '年' + (today.getMonth() + 1) + '月' + today.getDate() + '日（' + weekdays[today.getDay()] + '）';
+      var target = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      dateEl.textContent = target.getFullYear() + '年' + (target.getMonth() + 1) + '月' + target.getDate() + '日（' + weekdays[target.getDay()] + '）';
     }
 
     updateDateDisplay();
@@ -897,12 +999,24 @@
 
     // ---- ルーレットくじ ----
     var rouletteButton = document.getElementById('roulette-button');
+    var rouletteBulkButton = document.getElementById('roulette-bulk-button');
     var roulettePersonSelect = document.getElementById('roulette-person-select');
     var rouletteOverlay = document.getElementById('roulette-overlay');
     var roulettePersonEl = document.getElementById('roulette-person');
     var rouletteNumberEl = document.getElementById('roulette-number');
+    var rouletteBulkResultsEl = document.getElementById('roulette-bulk-results');
     var rouletteCloseButton = document.getElementById('roulette-close');
+    var clearButton = document.getElementById('clear-button');
     var rouletteSpinning = false;
+
+    function shuffleArray(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
 
     function refreshRoulettePersonSelect() {
       var currentValue = roulettePersonSelect.value;
@@ -917,6 +1031,7 @@
         roulettePersonSelect.appendChild(opt);
         roulettePersonSelect.disabled = true;
         rouletteButton.disabled = true;
+        rouletteBulkButton.disabled = true;
         return;
       }
 
@@ -928,7 +1043,11 @@
       });
 
       roulettePersonSelect.disabled = false;
-      if (!rouletteSpinning) rouletteButton.disabled = false;
+      if (!rouletteSpinning) {
+        rouletteButton.disabled = false;
+        rouletteBulkButton.disabled = false;
+        clearButton.disabled = false;
+      }
 
       if (unassignedPeople.some(function (p) { return p.id === currentValue; })) {
         roulettePersonSelect.value = currentValue;
@@ -986,6 +1105,7 @@
 
       if (!person) {
         rouletteOverlay.classList.add('open');
+        rouletteBulkResultsEl.innerHTML = '';
         roulettePersonEl.textContent = '全員の座席が決まりました。';
         rouletteNumberEl.textContent = '🎉';
         return;
@@ -994,6 +1114,7 @@
       var availableSeats = getAvailableSeatNumbers();
       if (availableSeats.length === 0) {
         rouletteOverlay.classList.add('open');
+        rouletteBulkResultsEl.innerHTML = '';
         roulettePersonEl.textContent = '空いている席がありません。';
         rouletteNumberEl.textContent = '--';
         return;
@@ -1001,7 +1122,10 @@
 
       rouletteSpinning = true;
       rouletteButton.disabled = true;
+      rouletteBulkButton.disabled = true;
       roulettePersonSelect.disabled = true;
+      clearButton.disabled = true;
+      rouletteBulkResultsEl.innerHTML = '';
       rouletteOverlay.classList.add('open');
       roulettePersonEl.textContent = person.name + ' さんの席を決めています…';
       rouletteNumberEl.textContent = '--';
@@ -1009,8 +1133,93 @@
       runRouletteSpin(person, availableSeats);
     });
 
+    function processBulkQueue(queue) {
+      if (queue.length === 0) {
+        rouletteSpinning = false;
+        roulettePersonEl.textContent = '一括ルーレットが完了しました。';
+        rouletteNumberEl.textContent = '🎉';
+        refreshRoulettePersonSelect();
+        return;
+      }
+
+      var person = queue.shift();
+      var availableSeats = getAvailableSeatNumbers();
+
+      if (availableSeats.length === 0) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span class="rb-name"></span><span class="rb-seat rb-none">空席なし</span>';
+        li.querySelector('.rb-name').textContent = person.name;
+        rouletteBulkResultsEl.appendChild(li);
+        rouletteBulkResultsEl.scrollTop = rouletteBulkResultsEl.scrollHeight;
+        processBulkQueue(queue);
+        return;
+      }
+
+      roulettePersonEl.textContent = person.name + ' さんの席を決めています…';
+
+      var finalSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+      var ticks = 0;
+      var totalTicks = 14;
+      var delay = 45;
+
+      function tick() {
+        var randomSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+        rouletteNumberEl.textContent = randomSeat;
+        ticks++;
+        if (ticks < totalTicks) {
+          delay = delay * 1.1;
+          setTimeout(tick, delay);
+        } else {
+          rouletteNumberEl.textContent = finalSeat;
+
+          var select = document.querySelector('.seat-select[data-seat-number="' + finalSeat + '"]');
+          if (select) {
+            select.value = person.id;
+            select.dispatchEvent(new Event('change'));
+          }
+
+          var li = document.createElement('li');
+          li.innerHTML = '<span class="rb-name"></span><span class="rb-seat"></span>';
+          li.querySelector('.rb-name').textContent = person.name;
+          li.querySelector('.rb-seat').textContent = finalSeat + ' 番';
+          rouletteBulkResultsEl.appendChild(li);
+          rouletteBulkResultsEl.scrollTop = rouletteBulkResultsEl.scrollHeight;
+
+          setTimeout(function () { processBulkQueue(queue); }, 250);
+        }
+      }
+      tick();
+    }
+
+    rouletteBulkButton.addEventListener('click', function () {
+      if (rouletteSpinning) return;
+
+      var unassignedPeople = people.filter(function (p) { return !assignedSeatOf(p.id); });
+      if (unassignedPeople.length === 0) {
+        rouletteOverlay.classList.add('open');
+        rouletteBulkResultsEl.innerHTML = '';
+        roulettePersonEl.textContent = '全員の座席が決まりました。';
+        rouletteNumberEl.textContent = '🎉';
+        return;
+      }
+
+      rouletteSpinning = true;
+      rouletteButton.disabled = true;
+      rouletteBulkButton.disabled = true;
+      roulettePersonSelect.disabled = true;
+      clearButton.disabled = true;
+      rouletteBulkResultsEl.innerHTML = '';
+      rouletteOverlay.classList.add('open');
+      roulettePersonEl.textContent = '一括ルーレットを開始します…';
+      rouletteNumberEl.textContent = '--';
+
+      var queue = shuffleArray(unassignedPeople);
+      processBulkQueue(queue);
+    });
+
     rouletteCloseButton.addEventListener('click', function () {
       if (rouletteSpinning) return;
+      rouletteBulkResultsEl.innerHTML = '';
       rouletteOverlay.classList.remove('open');
     });
 
@@ -1026,8 +1235,21 @@
       updateRosterPanel();
       updateDateDisplay();
       refreshRoulettePersonSelect();
+      rouletteBulkResultsEl.innerHTML = '';
       rouletteOverlay.classList.remove('open');
     }
+
+    clearButton.addEventListener('click', function () {
+      if (rouletteSpinning) return;
+
+      var hasAssignments = Object.keys(seatAssignments).length > 0;
+      if (!hasAssignments) return;
+
+      var confirmed = window.confirm('現在の座席の割り当てをすべてクリアします。よろしいですか？');
+      if (!confirmed) return;
+
+      resetAllSeats();
+    });
 
     function scheduleMidnightReset() {
       var now = new Date();
