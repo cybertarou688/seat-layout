@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チーム分け</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-a: #FFF1F6;
+    --bg-b: #EFF6FF;
+    --ink: #2E2A45;
+    --muted: #9691AC;
+    --panel: #FFFFFF;
+    --pink: #FF5C8A;
+    --pink-deep: #E13F6E;
+    --purple: #7C5CFF;
+    --yellow: #FFC93C;
+    --teal: #14C6A5;
+    --line: #ECE7F7;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: clamp(20px, 5vw, 48px) clamp(10px, 3vw, 24px) clamp(40px, 6vw, 72px);
+    background: radial-gradient(circle at 15% 0%, var(--bg-a) 0%, var(--bg-b) 55%, var(--bg-b) 100%);
+    color: var(--ink);
+    font-family: "BIZ UDPGothic", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: min(960px, 96vw);
+  }
+
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 22px;
+  }
+
+  .page-title {
+    font-size: clamp(24px, 4.5vw, 32px);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .page-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 4px 0 0;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .control-panel {
+    background: var(--panel);
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    padding: 22px 24px;
+    margin: 0 0 26px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .roster-pill {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ink);
+    background: #FFF3D6;
+    border: 2px solid var(--yellow);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  .control-row label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  #team-count {
+    width: 76px;
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    padding: 8px 6px;
+    border: 2px solid var(--ink);
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: var(--ink);
+  }
+
+  #team-count:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+
+  .run-button {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: var(--pink);
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    padding: 11px 26px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .run-button:hover { background: var(--pink-deep); }
+  .run-button:active { transform: scale(0.97); }
+  .run-button:disabled {
+    background: #D9D4EA;
+    color: #FFFFFF;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .reshuffle-button {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--purple);
+    background: #F1EDFF;
+    border: 2px solid var(--purple);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .reshuffle-button:hover { background: #E4DCFF; }
+  .reshuffle-button:disabled {
+    color: var(--muted);
+    background: #F1ECFB;
+    border-color: var(--line);
+    cursor: not-allowed;
+  }
+
+  .control-error {
+    margin: 12px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pink-deep);
+    min-height: 16px;
+  }
+
+  .control-hint {
+    margin: 14px 0 0;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+  }
+
+  .team-card {
+    border-radius: 18px;
+    padding: 16px 18px;
+    border: 3px solid var(--ink);
+    animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .team-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed rgba(46, 42, 69, 0.25);
+  }
+
+  .team-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .team-card-count {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    background: rgba(255,255,255,0.6);
+    border-radius: 999px;
+    padding: 2px 10px;
+  }
+
+  .team-member-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .team-member-list li {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.72);
+    border-radius: 10px;
+  }
+
+  .team-member-list li .member-id {
+    font-family: "BIZ UDPGothic", sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(46, 42, 69, 0.55);
+    margin-right: 6px;
+  }
+
+  .empty-state {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  @keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.82) translateY(8px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .control-row { flex-direction: column; align-items: stretch; }
+    .control-row > * { width: 100%; }
+    #team-count { width: 100%; }
+    .hero { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <p class="page-title">チーム分け</p>
+        <p class="page-sub">名簿（最大50名）を人数で均等にわけます。チーム数を決めてポン！と実行してください。</p>
+      </div>
+    </div>
+
+    <div class="control-panel">
+      <div class="control-row">
+        <span class="roster-pill" id="roster-count-display">読込中…</span>
+        <label for="team-count">チーム数</label>
+        <input type="number" id="team-count" min="1" value="2">
+        <button type="button" class="run-button" id="run-button">チーム分けを実行</button>
+        <button type="button" class="reshuffle-button" id="reshuffle-button" style="display:none;">↻ 同じチーム数でやり直す</button>
+      </div>
+      <p class="control-error" id="control-error"></p>
+      <p class="control-hint">
+        ※ 名簿は people.js を編集すると変更できます（例：「1 太郎,2 次,3 三郎,4 四郎,5 五郎」）。1行50名まで対応。<br>
+        ※ 人数がチーム数で割り切れない場合、一部のチームが1名多くなります（できるだけ均等に配分）。
+      </p>
+    </div>
+
+    <div class="team-grid" id="team-grid">
+      <p class="empty-state">「チーム分けを実行」を押すとここに結果が表示されます</p>
+    </div>
+  </div>
+
+  <script src="people.js"></script>
+  <script>
+    var MAX_PEOPLE = 50;
+
+    var TEAM_COLORS = [
+      '#FFD8E4', '#D8F0EA', '#FFF0C2', '#E0DBFF',
+      '#FFDCC2', '#D8EAFF', '#F6D9FF', '#DFF3C2'
+    ];
+
+    function parsePeopleList(raw) {
+      return (raw || '').split(',').map(function (entry) {
+        entry = entry.trim();
+        if (!entry) return null;
+        var idx = entry.indexOf(' ');
+        if (idx === -1) return { id: entry, name: entry };
+        return { id: entry.slice(0, idx).trim(), name: entry.slice(idx + 1).trim() };
+      }).filter(function (p) { return p && p.name; });
+    }
+
+    var people = parsePeopleList(window.PEOPLE_LIST).slice(0, MAX_PEOPLE);
+
+    var rosterCountDisplay = document.getElementById('roster-count-display');
+    var teamCountInput = document.getElementById('team-count');
+    var runButton = document.getElementById('run-button');
+    var reshuffleButton = document.getElementById('reshuffle-button');
+    var controlError = document.getElementById('control-error');
+    var teamGrid = document.getElementById('team-grid');
+
+    function initRosterDisplay() {
+      if (people.length === 0) {
+        rosterCountDisplay.textContent = '名簿が読み込まれていません（people.js を確認してください）';
+        runButton.disabled = true;
+        return;
+      }
+      rosterCountDisplay.textContent = '名簿：' + people.length + '名';
+      teamCountInput.max = people.length;
+      if (Number(teamCountInput.value) > people.length) {
+        teamCountInput.value = people.length;
+      }
+    }
+
+    initRosterDisplay();
+
+    function shuffleArray(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+      }
+      return a;
+    }
+
+    function teamLetterLabel(index) {
+      // 0 -> A, 1 -> B, ... 25 -> Z, 26 -> AA, 27 -> AB, ...
+      var label = '';
+      var n = index;
+      do {
+        label = String.fromCharCode(65 + (n % 26)) + label;
+        n = Math.floor(n / 26) - 1;
+      } while (n >= 0);
+      return label;
+    }
+
+    function splitIntoTeams(list, teamCount) {
+      var shuffled = shuffleArray(list);
+      var teams = [];
+      for (var i = 0; i < teamCount; i++) teams.push([]);
+      shuffled.forEach(function (person, index) {
+        teams[index % teamCount].push(person);
+      });
+      return teams;
+    }
+
+    function renderTeams(teams) {
+      teamGrid.innerHTML = '';
+      teams.forEach(function (members, index) {
+        var color = TEAM_COLORS[index % TEAM_COLORS.length];
+
+        var card = document.createElement('div');
+        card.className = 'team-card';
+        card.style.background = color;
+        card.style.animationDelay = (index * 0.05) + 's';
+
+        var header = document.createElement('div');
+        header.className = 'team-card-header';
+
+        var nameEl = document.createElement('span');
+        nameEl.className = 'team-card-name';
+        nameEl.textContent = 'チーム ' + teamLetterLabel(index);
+
+        var countEl = document.createElement('span');
+        countEl.className = 'team-card-count';
+        countEl.textContent = members.length + '名';
+
+        header.appendChild(nameEl);
+        header.appendChild(countEl);
+
+        var list = document.createElement('ul');
+        list.className = 'team-member-list';
+        members.forEach(function (p) {
+          var li = document.createElement('li');
+          var idSpan = document.createElement('span');
+          idSpan.className = 'member-id';
+          idSpan.textContent = p.id;
+          li.appendChild(idSpan);
+          li.appendChild(document.createTextNode(p.name));
+          list.appendChild(li);
+        });
+
+        card.appendChild(header);
+        card.appendChild(list);
+        teamGrid.appendChild(card);
+      });
+    }
+
+    function validateTeamCount() {
+      var raw = teamCountInput.value;
+      var n = parseInt(raw, 10);
+
+      if (people.length === 0) {
+        controlError.textContent = '名簿が読み込まれていないため実行できません。';
+        return null;
+      }
+      if (!raw || isNaN(n) || n < 1) {
+        controlError.textContent = 'チーム数は1以上の整数で入力してください。';
+        return null;
+      }
+      if (n > people.length) {
+        controlError.textContent = 'チーム数が名簿の人数（' + people.length + '名）を超えています。';
+        return null;
+      }
+
+      controlError.textContent = '';
+      return n;
+    }
+
+    function runSplit() {
+      var teamCount = validateTeamCount();
+      if (teamCount === null) return;
+
+      var teams = splitIntoTeams(people, teamCount);
+      renderTeams(teams);
+      reshuffleButton.style.display = 'inline-block';
+    }
+
+    runButton.addEventListener('click', runSplit);
+    reshuffleButton.addEventListener('click', runSplit);
+
+    teamCountInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') runSplit();
+    });
+  </script>
+</body>
+</html>
