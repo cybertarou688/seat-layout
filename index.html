@@ -16,6 +16,13 @@
     --board: #33291F;
     --board-text: #F5F1E7;
     --seat-number: #6B4E1F;
+    --team-a: #3B6E8F;
+    --team-b: #4F8F5B;
+    --team-c: #8A5FA0;
+    --team-d: #C0752E;
+    --team-e: #2E8B8B;
+    --team-f: #B8447A;
+    --team-g: #7A6E2E;
   }
 
   * { box-sizing: border-box; }
@@ -102,6 +109,33 @@
     color: var(--seat-number);
   }
 
+  .seat-team {
+    font-family: "JetBrains Mono", monospace;
+    font-size: clamp(8px, 1.2vw, 10px);
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  td.seat.team-a { border-top: 3px solid var(--team-a); }
+  td.seat.team-b { border-top: 3px solid var(--team-b); }
+  td.seat.team-c { border-top: 3px solid var(--team-c); }
+  td.seat.team-d { border-top: 3px solid var(--team-d); }
+  td.seat.team-e { border-top: 3px solid var(--team-e); }
+  td.seat.team-f { border-top: 3px solid var(--team-f); }
+  td.seat.team-g { border-top: 3px solid var(--team-g); }
+
+  td.seat.team-a .seat-team { background: var(--team-a); }
+  td.seat.team-b .seat-team { background: var(--team-b); }
+  td.seat.team-c .seat-team { background: var(--team-c); }
+  td.seat.team-d .seat-team { background: var(--team-d); }
+  td.seat.team-e .seat-team { background: var(--team-e); }
+  td.seat.team-f .seat-team { background: var(--team-f); }
+  td.seat.team-g .seat-team { background: var(--team-g); }
+
   .seat-select {
     width: 100%;
     max-width: clamp(56px, 11vw, 96px);
@@ -172,6 +206,25 @@
     color: #7A6E5C;
     line-height: 1.7;
   }
+
+  .legend-team {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #FFFFFF;
+    padding: 1px 6px;
+    border-radius: 8px;
+    margin: 0 2px;
+  }
+
+  .legend-team-a { background: var(--team-a); }
+  .legend-team-b { background: var(--team-b); }
+  .legend-team-c { background: var(--team-c); }
+  .legend-team-d { background: var(--team-d); }
+  .legend-team-e { background: var(--team-e); }
+  .legend-team-f { background: var(--team-f); }
+  .legend-team-g { background: var(--team-g); }
 
   .panels {
     display: flex;
@@ -495,85 +548,95 @@
       </colgroup>
       <tbody>
         <tr>
-          <td class="seat pos-a assignable" data-row="1" data-desk="1" data-position="A" data-seat-number="1">
+          <td class="seat pos-a team-a assignable" data-row="1" data-desk="1" data-position="A" data-seat-number="1">
           <div class="seat-inner">
             <span class="seat-num">1</span>
+            <span class="seat-team">A</span>
             <select class="seat-select" data-seat-number="1">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="1" data-desk="1" data-position="B" data-seat-number="2">
+          <td class="seat pos-b team-a assignable" data-row="1" data-desk="1" data-position="B" data-seat-number="2">
           <div class="seat-inner">
             <span class="seat-num">2</span>
+            <span class="seat-team">A</span>
             <select class="seat-select" data-seat-number="2">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="1" data-desk="2" data-position="A" data-seat-number="3">
+          <td class="seat pos-a team-c assignable" data-row="1" data-desk="2" data-position="A" data-seat-number="3">
           <div class="seat-inner">
             <span class="seat-num">3</span>
+            <span class="seat-team">C</span>
             <select class="seat-select" data-seat-number="3">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="1" data-desk="2" data-position="B" data-seat-number="4">
+          <td class="seat pos-b team-c assignable" data-row="1" data-desk="2" data-position="B" data-seat-number="4">
           <div class="seat-inner">
             <span class="seat-num">4</span>
+            <span class="seat-team">C</span>
             <select class="seat-select" data-seat-number="4">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="1" data-desk="3" data-position="A" data-seat-number="5">
+          <td class="seat pos-a team-e assignable" data-row="1" data-desk="3" data-position="A" data-seat-number="5">
           <div class="seat-inner">
             <span class="seat-num">5</span>
+            <span class="seat-team">E</span>
             <select class="seat-select" data-seat-number="5">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="1" data-desk="3" data-position="B" data-seat-number="6">
+          <td class="seat pos-b team-e assignable" data-row="1" data-desk="3" data-position="B" data-seat-number="6">
           <div class="seat-inner">
             <span class="seat-num">6</span>
+            <span class="seat-team">E</span>
             <select class="seat-select" data-seat-number="6">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="1" data-desk="4" data-position="A" data-seat-number="7">
+          <td class="seat pos-a team-f assignable" data-row="1" data-desk="4" data-position="A" data-seat-number="7">
           <div class="seat-inner">
             <span class="seat-num">7</span>
+            <span class="seat-team">F</span>
             <select class="seat-select" data-seat-number="7">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="1" data-desk="4" data-position="B" data-seat-number="8">
+          <td class="seat pos-b team-f assignable" data-row="1" data-desk="4" data-position="B" data-seat-number="8">
           <div class="seat-inner">
             <span class="seat-num">8</span>
+            <span class="seat-team">F</span>
             <select class="seat-select" data-seat-number="8">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="1" data-desk="5" data-position="A" data-seat-number="9">
+          <td class="seat pos-a team-g assignable" data-row="1" data-desk="5" data-position="A" data-seat-number="9">
           <div class="seat-inner">
             <span class="seat-num">9</span>
+            <span class="seat-team">G</span>
             <select class="seat-select" data-seat-number="9">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="1" data-desk="5" data-position="B" data-seat-number="10">
+          <td class="seat pos-b team-g assignable" data-row="1" data-desk="5" data-position="B" data-seat-number="10">
           <div class="seat-inner">
             <span class="seat-num">10</span>
+            <span class="seat-team">G</span>
             <select class="seat-select" data-seat-number="10">
               <option value="">-- 未選択 --</option>
             </select>
@@ -582,85 +645,95 @@
         </tr>
         <tr class="gap-row"><td colspan="14"></td></tr>
         <tr>
-          <td class="seat pos-a assignable" data-row="2" data-desk="1" data-position="A" data-seat-number="11">
+          <td class="seat pos-a team-a assignable" data-row="2" data-desk="1" data-position="A" data-seat-number="11">
           <div class="seat-inner">
             <span class="seat-num">11</span>
+            <span class="seat-team">A</span>
             <select class="seat-select" data-seat-number="11">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="2" data-desk="1" data-position="B" data-seat-number="12">
+          <td class="seat pos-b team-a assignable" data-row="2" data-desk="1" data-position="B" data-seat-number="12">
           <div class="seat-inner">
             <span class="seat-num">12</span>
+            <span class="seat-team">A</span>
             <select class="seat-select" data-seat-number="12">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="2" data-desk="2" data-position="A" data-seat-number="13">
+          <td class="seat pos-a team-c assignable" data-row="2" data-desk="2" data-position="A" data-seat-number="13">
           <div class="seat-inner">
             <span class="seat-num">13</span>
+            <span class="seat-team">C</span>
             <select class="seat-select" data-seat-number="13">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="2" data-desk="2" data-position="B" data-seat-number="14">
+          <td class="seat pos-b team-c assignable" data-row="2" data-desk="2" data-position="B" data-seat-number="14">
           <div class="seat-inner">
             <span class="seat-num">14</span>
+            <span class="seat-team">C</span>
             <select class="seat-select" data-seat-number="14">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="2" data-desk="3" data-position="A" data-seat-number="15">
+          <td class="seat pos-a team-e assignable" data-row="2" data-desk="3" data-position="A" data-seat-number="15">
           <div class="seat-inner">
             <span class="seat-num">15</span>
+            <span class="seat-team">E</span>
             <select class="seat-select" data-seat-number="15">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="2" data-desk="3" data-position="B" data-seat-number="16">
+          <td class="seat pos-b team-e assignable" data-row="2" data-desk="3" data-position="B" data-seat-number="16">
           <div class="seat-inner">
             <span class="seat-num">16</span>
+            <span class="seat-team">E</span>
             <select class="seat-select" data-seat-number="16">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="2" data-desk="4" data-position="A" data-seat-number="17">
+          <td class="seat pos-a team-f assignable" data-row="2" data-desk="4" data-position="A" data-seat-number="17">
           <div class="seat-inner">
             <span class="seat-num">17</span>
+            <span class="seat-team">F</span>
             <select class="seat-select" data-seat-number="17">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="2" data-desk="4" data-position="B" data-seat-number="18">
+          <td class="seat pos-b team-f assignable" data-row="2" data-desk="4" data-position="B" data-seat-number="18">
           <div class="seat-inner">
             <span class="seat-num">18</span>
+            <span class="seat-team">F</span>
             <select class="seat-select" data-seat-number="18">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="2" data-desk="5" data-position="A" data-seat-number="19">
+          <td class="seat pos-a team-g assignable" data-row="2" data-desk="5" data-position="A" data-seat-number="19">
           <div class="seat-inner">
             <span class="seat-num">19</span>
+            <span class="seat-team">G</span>
             <select class="seat-select" data-seat-number="19">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="2" data-desk="5" data-position="B" data-seat-number="20">
+          <td class="seat pos-b team-g assignable" data-row="2" data-desk="5" data-position="B" data-seat-number="20">
           <div class="seat-inner">
             <span class="seat-num">20</span>
+            <span class="seat-team">G</span>
             <select class="seat-select" data-seat-number="20">
               <option value="">-- 未選択 --</option>
             </select>
@@ -669,71 +742,71 @@
         </tr>
         <tr class="gap-row"><td colspan="14"></td></tr>
         <tr>
-          <td class="seat pos-a assignable" data-row="3" data-desk="1" data-position="A" data-seat-number="21">
+          <td class="seat pos-a team-b assignable" data-row="3" data-desk="1" data-position="A" data-seat-number="21">
           <div class="seat-inner">
             <span class="seat-num">21</span>
+            <span class="seat-team">B</span>
             <select class="seat-select" data-seat-number="21">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="3" data-desk="1" data-position="B" data-seat-number="22">
+          <td class="seat pos-b team-b assignable" data-row="3" data-desk="1" data-position="B" data-seat-number="22">
           <div class="seat-inner">
             <span class="seat-num">22</span>
+            <span class="seat-team">B</span>
             <select class="seat-select" data-seat-number="22">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="3" data-desk="2" data-position="A" data-seat-number="23">
+          <td class="seat pos-a team-d assignable" data-row="3" data-desk="2" data-position="A" data-seat-number="23">
           <div class="seat-inner">
             <span class="seat-num">23</span>
+            <span class="seat-team">D</span>
             <select class="seat-select" data-seat-number="23">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="3" data-desk="2" data-position="B" data-seat-number="24">
+          <td class="seat pos-b team-d assignable" data-row="3" data-desk="2" data-position="B" data-seat-number="24">
           <div class="seat-inner">
             <span class="seat-num">24</span>
+            <span class="seat-team">D</span>
             <select class="seat-select" data-seat-number="24">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="3" data-desk="3" data-position="A" data-seat-number="25">
+          <td class="seat pos-a team-e assignable" data-row="3" data-desk="3" data-position="A" data-seat-number="25">
           <div class="seat-inner">
             <span class="seat-num">25</span>
+            <span class="seat-team">E</span>
             <select class="seat-select" data-seat-number="25">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="3" data-desk="3" data-position="B" data-seat-number="26">
+          <td class="seat pos-b unavailable" data-row="3" data-desk="3" data-position="B" data-seat-number="26">
           <div class="seat-inner">
             <span class="seat-num">26</span>
-            <select class="seat-select" data-seat-number="26">
-              <option value="">-- 未選択 --</option>
-            </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="3" data-desk="4" data-position="A" data-seat-number="27">
+          <td class="seat pos-a team-f assignable" data-row="3" data-desk="4" data-position="A" data-seat-number="27">
           <div class="seat-inner">
             <span class="seat-num">27</span>
+            <span class="seat-team">F</span>
             <select class="seat-select" data-seat-number="27">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="3" data-desk="4" data-position="B" data-seat-number="28">
+          <td class="seat pos-b unavailable" data-row="3" data-desk="4" data-position="B" data-seat-number="28">
           <div class="seat-inner">
             <span class="seat-num">28</span>
-            <select class="seat-select" data-seat-number="28">
-              <option value="">-- 未選択 --</option>
-            </select>
           </div>
           </td>
           <td class="gap"></td>
@@ -750,34 +823,38 @@
         </tr>
         <tr class="gap-row"><td colspan="14"></td></tr>
         <tr>
-          <td class="seat pos-a assignable" data-row="4" data-desk="1" data-position="A" data-seat-number="31">
+          <td class="seat pos-a team-b assignable" data-row="4" data-desk="1" data-position="A" data-seat-number="31">
           <div class="seat-inner">
             <span class="seat-num">31</span>
+            <span class="seat-team">B</span>
             <select class="seat-select" data-seat-number="31">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="4" data-desk="1" data-position="B" data-seat-number="32">
+          <td class="seat pos-b team-b assignable" data-row="4" data-desk="1" data-position="B" data-seat-number="32">
           <div class="seat-inner">
             <span class="seat-num">32</span>
+            <span class="seat-team">B</span>
             <select class="seat-select" data-seat-number="32">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a assignable" data-row="4" data-desk="2" data-position="A" data-seat-number="33">
+          <td class="seat pos-a team-d assignable" data-row="4" data-desk="2" data-position="A" data-seat-number="33">
           <div class="seat-inner">
             <span class="seat-num">33</span>
+            <span class="seat-team">D</span>
             <select class="seat-select" data-seat-number="33">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b assignable" data-row="4" data-desk="2" data-position="B" data-seat-number="34">
+          <td class="seat pos-b team-d assignable" data-row="4" data-desk="2" data-position="B" data-seat-number="34">
           <div class="seat-inner">
             <span class="seat-num">34</span>
+            <span class="seat-team">D</span>
             <select class="seat-select" data-seat-number="34">
               <option value="">-- 未選択 --</option>
             </select>
@@ -823,8 +900,9 @@
     <p class="legend">
       座席番号は左上から右方向へ1〜10、次の段は11〜20…と続き、右下の40番まで振っています。<br>
       枠でつながった2マスが1つの机（2人がけ）です。全20机 × 2席 ＝ 40席。<br>
-      斜線の席（29、30、35〜40）は使用できません。<br>
+      斜線の席（26、28、29、30、35〜40）は使用できません。<br>
       各席の下にあるプルダウンから選択者を選ぶと、その席が赤色になり名前が表示されます。すでに他の席に割り当て済みの人は選べません。<br>
+      席上部の色付きバッジはチームを表します：<span class="legend-team legend-team-a">A</span> 1・2・11・12　<span class="legend-team legend-team-b">B</span> 21・22・31・32　<span class="legend-team legend-team-c">C</span> 3・4・13・14　<span class="legend-team legend-team-d">D</span> 23・24・33・34　<span class="legend-team legend-team-e">E</span> 5・6・15・16・25　<span class="legend-team legend-team-f">F</span> 7・8・17・18・27　<span class="legend-team legend-team-g">G</span> 9・10・19・20<br>
       設定した座席は毎日0:00にリセットされます。
     </p>
 
