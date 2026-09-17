@@ -3,48 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ファシリテータ表</title>
+<title>陣立て｜営業日ファシリテータ表</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&family=Zen+Maru+Gothic:wght@500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-base: #FFF9F0;
+    --bg-base: #F8FAFC;
     --card-bg: #FFFFFF;
-    --ink: #333333;
-    --sub-ink: #777777;
+    --ink: #1E293B;
+    --sub-ink: #64748B;
     
-    /* ポップ＆フレンドリーなカラーパレット */
-    --pop-pink: #FF6B8B;
-    --pop-orange: #FF9F43;
-    --pop-yellow: #FECA57;
-    --pop-green: #10AC84;
-    --pop-blue: #00D2D3;
-    --pop-indigo: #54a0ff;
-    --pop-purple: #5f27cd;
+    /* スタンダードなカラーパレット */
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --accent: #0F172A;
     
-    --primary: #FF6B6B;
-    --primary-dark: #EE5253;
-    --accent: #48DBFB;
-    
-    --holiday-bg: #FFEAA7;
-    --holiday-border: #FDCB6E;
-    --holiday-text: #D63031;
-    --weekend-bg: #F1F2F6;
-    --shadow: rgba(0, 0, 0, 0.08);
+    --holiday-bg: #FEF2F2;
+    --holiday-border: #FECACA;
+    --holiday-text: #DC2626;
+    --weekend-bg: #F1F5F9;
+    --border-color: #E2E8F0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    padding: clamp(20px, 5vw, 48px) clamp(10px, 3vw, 24px) clamp(40px, 7vw, 72px);
-    background:
-      radial-gradient(circle at 10% 20%, rgba(255, 107, 139, 0.08), transparent 40%),
-      radial-gradient(circle at 90% 80%, rgba(0, 210, 211, 0.08), transparent 40%),
-      var(--bg-base);
+    padding: clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px);
+    background: var(--bg-base);
     color: var(--ink);
-    /* 丸ゴシック系のUDライクなフォント構成 */
-    font-family: "M PLUS Rounded 1c", "Zen Maru Gothic", sans-serif;
+    font-family: "Noto Sans JP", "Inter", sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -52,27 +41,24 @@
 
   .room { width: 100%; max-width: min(960px, 96vw); }
 
-  /* ---- 見出し（ポップ＆キュート） ---- */
+  /* ---- 見出し（スタンダード） ---- */
   .hero {
     position: relative;
-    background: linear-gradient(135deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
-    border: 3px solid #FFFFFF;
-    border-radius: 20px;
-    padding: clamp(24px, 5vw, 38px) clamp(16px, 4vw, 28px);
-    margin-bottom: clamp(20px, 4vw, 28px);
-    box-shadow: 0 10px 25px rgba(255, 106, 136, 0.3);
-    text-align: center;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
   }
 
   .hero-title {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 800;
-    font-size: clamp(26px, 5.5vw, 44px);
-    line-height: 1.2;
-    color: #FFFFFF;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 4vw, 28px);
+    line-height: 1.4;
+    color: var(--ink);
     margin: 0;
-    letter-spacing: 0.04em;
-    text-shadow: 3px 3px 0px rgba(0,0,0,0.12);
   }
 
   /* ---- ナビゲーション ---- */
@@ -80,170 +66,169 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .nav-arrow {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 700;
-    font-size: 18px;
-    color: #FFFFFF;
-    background: var(--pop-orange);
-    border: none;
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--sub-ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
     cursor: pointer;
-    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3);
-    transition: transform 0.1s ease, background 0.2s ease;
+    box-shadow: var(--shadow);
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .nav-arrow:hover { background: #e58e26; transform: scale(1.05); }
+  .nav-arrow:hover { background: #F1F5F9; border-color: #CBD5E1; color: var(--ink); }
 
   .month-label {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 800;
-    font-size: clamp(20px, 3.5vw, 26px);
-    min-width: 160px;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 3vw, 22px);
+    min-width: 150px;
     text-align: center;
     color: var(--ink);
   }
 
   .nav-select {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 700;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 500;
     font-size: 13px;
     color: var(--ink);
     background: var(--card-bg);
-    border: 2px solid #E4E7EB;
-    border-radius: 12px;
-    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 7px 10px;
     outline: none;
     cursor: pointer;
-    box-shadow: 0 2px 5px var(--shadow);
+    box-shadow: var(--shadow);
   }
-  .nav-select:focus { border-color: var(--pop-orange); }
+  .nav-select:focus { border-color: var(--primary); }
 
-  .today-button {
-    font-family: "M PLUS Rounded 1c", sans-serif;
+  .action-button {
+    font-family: "Noto Sans JP", sans-serif;
     font-size: 13px;
-    font-weight: 700;
-    color: #FFFFFF;
-    background: var(--pop-indigo);
-    border: none;
-    border-radius: 12px;
-    padding: 9px 18px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 7px 14px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(84, 160, 255, 0.3);
-    transition: transform 0.1s ease, background 0.2s ease;
+    box-shadow: var(--shadow);
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .today-button:hover { background: #3867d6; transform: scale(1.02); }
+  .action-button:hover { background: #F1F5F9; border-color: #CBD5E1; }
 
   /* ---- 凡例 ---- */
   .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 20px;
+    gap: 8px 16px;
     justify-content: center;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--sub-ink);
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     background: var(--card-bg);
-    padding: 12px 16px;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px var(--shadow);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
   }
   .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-swatch {
-    width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+    width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
   }
-  .legend-swatch.sw-business { background: var(--card-bg); border: 2px solid #E4E7EB; }
-  .legend-swatch.sw-holiday { background: var(--holiday-bg); border: 2px solid var(--holiday-border); }
-  .legend-swatch.sw-weekend { background: var(--weekend-bg); }
-  .legend-swatch.sw-today { background: #FFFFFF; border: 3px solid var(--pop-orange); }
-  .legend-swatch.sw-overridden { background: var(--pop-pink); }
+  .legend-swatch.sw-business { background: var(--card-bg); border: 1px solid var(--border-color); }
+  .legend-swatch.sw-holiday { background: var(--holiday-bg); border: 1px solid var(--holiday-border); }
+  .legend-swatch.sw-weekend { background: var(--weekend-bg); border: 1px solid var(--border-color); }
+  .legend-swatch.sw-today { background: var(--card-bg); border: 2px solid var(--primary); }
+  .legend-swatch.sw-overridden { background: #FEF3C7; border: 1px solid #F59E0B; }
 
   /* ---- カレンダー本体 ---- */
   .cal-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 4px;
+    margin-bottom: 4px;
   }
   .cal-weekday {
     text-align: center;
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 800;
-    font-size: 13px;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 700;
+    font-size: 12px;
     color: var(--sub-ink);
     padding-bottom: 2px;
   }
-  .cal-weekday.wd-sun { color: var(--pop-pink); }
-  .cal-weekday.wd-sat { color: var(--pop-indigo); }
+  .cal-weekday.wd-sun { color: #DC2626; }
+  .cal-weekday.wd-sat { color: #2563EB; }
 
   .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
   }
 
   .cal-cell {
     position: relative;
     background: var(--card-bg);
-    border: 2px solid #E4E7EB;
-    border-radius: 12px;
-    min-height: clamp(82px, 14vw, 110px);
-    padding: 8px 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    min-height: clamp(80px, 13vw, 105px);
+    padding: 6px;
     display: flex;
     flex-direction: column;
     gap: 4px;
     overflow: hidden;
-    box-shadow: 0 3px 10px var(--shadow);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: var(--shadow);
   }
-  .cal-cell:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-  .cal-cell-outside { background: transparent; border-color: transparent; box-shadow: none; pointer-events: none; }
-  .cal-cell-outside .cal-date-num { color: #DCDDE1; }
+  .cal-cell-outside { background: #F8FAFC; border-color: transparent; box-shadow: none; pointer-events: none; }
+  .cal-cell-outside .cal-date-num { color: #CBD5E1; }
 
-  .cal-cell.cal-weekend { background: var(--weekend-bg); border-color: #DFE4EA; }
+  .cal-cell.cal-weekend { background: var(--weekend-bg); }
   .cal-cell.cal-holiday { background: var(--holiday-bg); border-color: var(--holiday-border); }
 
-  .cal-cell.cal-today { border: 3px solid var(--pop-orange); background: #FFFDF9; }
+  .cal-cell.cal-today { border: 2px solid var(--primary); }
 
   .cal-cell.cal-overridden::before {
     content: "交代";
     position: absolute;
     top: 0; right: 0;
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 800;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 700;
     font-size: 9px;
-    color: #FFFFFF;
-    background: var(--pop-pink);
-    padding: 2px 6px;
-    border-bottom-left-radius: 10px;
-    letter-spacing: 0.05em;
+    color: #B45309;
+    background: #FEF3C7;
+    padding: 1px 5px;
+    border-bottom-left-radius: 4px;
+    border-left: 1px solid #F59E0B;
+    border-bottom: 1px solid #F59E0B;
   }
 
   .cal-date-num {
-    font-family: "JetBrains Mono", monospace;
-    font-size: clamp(12px, 1.8vw, 14px);
-    font-weight: 700;
+    font-family: "Inter", monospace;
+    font-size: clamp(12px, 1.6vw, 13px);
+    font-weight: 600;
     color: var(--ink);
   }
-  .cal-cell.cal-sun .cal-date-num { color: var(--pop-pink); }
-  .cal-cell.cal-sat .cal-date-num { color: var(--pop-indigo); }
+  .cal-cell.cal-sun .cal-date-num { color: #DC2626; }
+  .cal-cell.cal-sat .cal-date-num { color: #2563EB; }
 
   .cal-holiday-name {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-size: clamp(9px, 1.3vw, 11px);
-    font-weight: 700;
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: clamp(9px, 1.2vw, 10px);
+    font-weight: 500;
     color: var(--holiday-text);
     line-height: 1.2;
     overflow: hidden;
@@ -254,40 +239,39 @@
   .cal-select {
     margin-top: auto;
     width: 100%;
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-weight: 700;
-    font-size: clamp(10px, 1.5vw, 12px);
-    color: #FFFFFF;
-    background: var(--pop-pink);
-    border: none;
-    border-radius: 8px;
-    padding: 5px 4px;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 500;
+    font-size: clamp(10px, 1.4vw, 11px);
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 2px;
     text-align: center;
     text-align-last: center;
     cursor: pointer;
     outline: none;
-    box-shadow: 0 2px 5px rgba(255, 107, 139, 0.3);
-    transition: background 0.2s ease;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s ease;
   }
-  .cal-select:hover { background: #ff5252; }
-  .cal-select.is-auto { background: #2f3640; box-shadow: 0 2px 5px rgba(47, 54, 64, 0.3); }
-  .cal-select.is-auto:hover { background: #192a56; }
+  .cal-select:hover { border-color: #94A3B8; }
+  .cal-select.is-auto { color: var(--sub-ink); background: #F8FAFC; }
 
   /* ---- 下部パネル ---- */
   .panels {
     display: flex;
     gap: 16px;
-    margin-top: 24px;
+    margin-top: 20px;
     flex-wrap: wrap;
   }
 
   .panel {
     flex: 1 1 280px;
-    padding: 20px;
+    padding: 16px 20px;
     background: var(--card-bg);
-    border: 2px solid #E4E7EB;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px var(--shadow);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
   }
 
   .panel-header {
@@ -295,13 +279,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin: 0 0 12px;
+    margin: 0 0 10px;
   }
 
   .panel .panel-title {
-    font-family: "M PLUS Rounded 1c", sans-serif;
-    font-size: 15px;
-    font-weight: 800;
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
     margin: 0;
     color: var(--ink);
     display: flex;
@@ -311,65 +295,88 @@
   .panel .panel-title::before {
     content: "";
     display: inline-block;
-    width: 8px;
-    height: 16px;
-    background: var(--pop-orange);
-    border-radius: 4px;
+    width: 3px;
+    height: 14px;
+    background: var(--primary);
+    border-radius: 2px;
   }
 
   .reset-button {
-    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-family: "Noto Sans JP", sans-serif;
     font-size: 11px;
-    font-weight: 700;
-    color: var(--pop-pink);
-    background: #FFF0F3;
-    border: 2px solid #FFD1DC;
-    border-radius: 10px;
-    padding: 6px 12px;
+    font-weight: 500;
+    color: var(--sub-ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 8px;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
   }
-  .reset-button:hover { background: var(--pop-pink); color: #FFFFFF; border-color: var(--pop-pink); }
-  .reset-button:disabled { color: #A4B0BE; border-color: #DFE4EA; background: #F1F2F6; cursor: not-allowed; box-shadow: none; }
+  .reset-button:hover { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+  .reset-button:disabled { color: #CBD5E1; border-color: var(--border-color); background: #F8FAFC; cursor: not-allowed; box-shadow: none; }
 
   .holiday-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .holiday-list li {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding: 8px 0;
-    border-bottom: 2px dashed #F1F2F6;
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
   }
   .holiday-list li:last-child { border-bottom: none; }
 
   .holiday-list .hl-date {
-    font-family: "JetBrains Mono", monospace;
+    font-family: "Inter", monospace;
     color: var(--holiday-text);
     flex-shrink: 0;
   }
   .holiday-list .hl-name { color: var(--ink); text-align: right; }
 
-  .empty-note { font-size: 12px; color: var(--sub-ink); font-weight: 700; }
+  .empty-note { font-size: 12px; color: var(--sub-ink); font-weight: 400; }
 
   .footnote {
-    margin-top: 24px;
+    margin-top: 20px;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 400;
     color: var(--sub-ink);
-    line-height: 1.8;
+    line-height: 1.6;
     background: var(--card-bg);
-    padding: 16px 20px;
-    border-radius: 14px;
-    border: 2px solid #E4E7EB;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
   }
+
+  .file-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .file-btn {
+    flex: 1;
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.15s ease, border-color 0.15s ease;
+    display: inline-block;
+  }
+  .file-btn:hover { background: #F1F5F9; border-color: #CBD5E1; }
 </style>
 </head>
 <body>
@@ -384,7 +391,7 @@
       <button type="button" class="nav-arrow" id="next-month" aria-label="次の月">›</button>
       <select class="nav-select" id="year-select"></select>
       <select class="nav-select" id="month-select"></select>
-      <button type="button" class="today-button" id="today-button">今月に戻る</button>
+      <button type="button" class="action-button" id="today-button">今月に戻る</button>
     </div>
 
     <div class="legend">
@@ -413,10 +420,19 @@
       </div>
       <div class="panel">
         <div class="panel-header">
-          <p class="panel-title">手動での交代</p>
-          <button type="button" class="reset-button" id="reset-overrides">交代を全てリセット</button>
+          <p class="panel-title">手動での交代と共有</p>
+          <button type="button" class="reset-button" id="reset-overrides">全てリセット</button>
         </div>
-        <p class="empty-note" style="line-height:1.7;">各営業日のプルダウンから担当者を選ぶと、自動ローテーションを上書きして交代できます。「自動」に戻すと元のローテーションに戻ります。変更内容はこのブラウザに保存され、次回開いたときも維持されます。</p>
+        <p class="empty-note" style="line-height:1.6; margin-bottom:10px;">
+          担当を変更したら「ファイルに書き出し」を押し、保存されたJSONファイルをファイルサーバーの共有フォルダに配置してください。確認時は「ファイルから読み込み」で最新の状態を反映できます。
+        </p>
+        <div class="file-actions">
+          <button type="button" class="file-btn" id="export-json">ファイルに書き出し</button>
+          <label class="file-btn" style="margin:0;">
+            ファイルから読み込み
+            <input type="file" id="import-json" accept=".json" style="display:none;">
+          </label>
+        </div>
       </div>
     </div>
 
@@ -432,7 +448,7 @@
     // タイトルのランダム表示設定
     // ============================================================
     (function setRandomHeroTitle() {
-      var roles = ['ファシリテータ','メイド', 'ファシリテータ','パシリテータ', 'ファシリテータ','お世話係', '奴隷', '執事', '御用聞き', '生殺与奪権'];
+      var roles = ['メイド', 'パシリテータ', 'お世話係', '奴隷', '執事', '御用聞き', '生殺与奪権'];
       var randomIndex = Math.floor(Math.random() * roles.length);
       var selectedRole = roles[randomIndex];
       document.getElementById('hero-title').textContent = selectedRole + '予定表';
@@ -556,7 +572,6 @@
     var facilitatorsById = {};
     facilitators.forEach(function (f) { facilitatorsById[f.id] = f; });
 
-    // 番号1の方が2026年10月7日（火）に担当するよう起算日（EPOCH）を設定
     var EPOCH = new Date(2026, 9, 7); // 10月は月インデックス 9
 
     function countBusinessDaysBetween(from, to) {
@@ -582,7 +597,7 @@
       return facilitators[idx];
     }
 
-    // ---- 手動交代の保存（localStorage） ----
+    // ---- 手動交代の保持（localStorage ＆ ファイル入出力） ----
     var STORAGE_KEY = 'jintate_overrides_v1';
 
     function loadOverrides() {
@@ -597,7 +612,7 @@
     function saveOverrides(overrides) {
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
-      } catch (e) { /* 保存できない環境では無視 */ }
+      } catch (e) { }
     }
 
     var overrides = loadOverrides();
@@ -793,6 +808,42 @@
       overrides = {};
       saveOverrides(overrides);
       renderCalendar();
+    });
+
+    // ============================================================
+    // ファイルサーバー共有用（エクスポート・インポート）
+    // ============================================================
+    document.getElementById('export-json').addEventListener('click', function() {
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(overrides, null, 2));
+      var downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "jintate_settings.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+
+    document.getElementById('import-json').addEventListener('change', function(event) {
+      var file = event.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          var imported = JSON.parse(e.target.result);
+          if (typeof imported === 'object' && imported !== null) {
+            overrides = imported;
+            saveOverrides(overrides);
+            renderCalendar();
+            alert('交代データを正常に読み込みました。');
+          } else {
+            alert('ファイルの形式が正しくありません。');
+          }
+        } catch (err) {
+          alert('JSONファイルの解析に失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
     });
 
     renderCalendar();
