@@ -57,7 +57,47 @@
     font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--ink);
-    margin: 0 0 6px;
+    margin: 0;
+  }
+
+  .room-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .team-toggle-button {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    background: #FFFFFF;
+    border: 1px solid var(--desk-border-light);
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .team-toggle-button:hover { background: #F1ECDF; border-color: var(--desk-border); }
+  .team-toggle-button:active { transform: scale(0.98); }
+
+  .room.hide-teams .seat-team { display: none; }
+
+  .room.hide-teams .seat-inner { gap: 0; }
+
+  .room.hide-teams td.seat.team-a,
+  .room.hide-teams td.seat.team-b,
+  .room.hide-teams td.seat.team-c,
+  .room.hide-teams td.seat.team-d,
+  .room.hide-teams td.seat.team-e,
+  .room.hide-teams td.seat.team-f,
+  .room.hide-teams td.seat.team-g {
+    border-top: 1.5px solid var(--desk-border-light);
   }
 
   .board {
@@ -534,7 +574,10 @@
 </head>
 <body>
   <div class="room">
-    <p class="date-display" id="date-display"></p>
+    <div class="room-header">
+      <p class="date-display" id="date-display"></p>
+      <button type="button" class="team-toggle-button" id="team-toggle-button">🧑‍🤝‍🧑 チーム表示を隠す</button>
+    </div>
     <p class="room-title">座席レイアウト（1机2人がけ ×5列 ×縦4列 ＝ 全40席)</p>
     <div class="board">教卓 ／ ディスプレイ</div>
 
@@ -959,13 +1002,117 @@
     var dateEl = document.getElementById('date-display');
     var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
 
+    // ---- 日本の祝日判定（春分の日・秋分の日は近似計算式を使用／振替休日・国民の休日を反映） ----
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    function dateKey(date) {
+      return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
+    }
+
+    function nthMondayOfMonth(year, month, n) {
+      // month は 1〜12
+      var first = new Date(year, month - 1, 1);
+      var firstMonday = 1 + ((8 - first.getDay()) % 7);
+      return new Date(year, month - 1, firstMonday + (n - 1) * 7);
+    }
+
+    function equinoxDay(year, kind) {
+      // 1980〜2099年で有効な近似式
+      if (kind === 'vernal') {
+        return Math.floor(20.8431 + 0.242194 * (year - 1980)) - Math.floor((year - 1980) / 4);
+      }
+      return Math.floor(23.2488 + 0.242194 * (year - 1980)) - Math.floor((year - 1980) / 4);
+    }
+
+    var holidayCacheByYear = {};
+
+    function getJapaneseHolidays(year) {
+      if (holidayCacheByYear[year]) return holidayCacheByYear[year];
+
+      var holidays = {};
+      function addHoliday(date, name) {
+        var key = dateKey(date);
+        if (!holidays[key]) holidays[key] = name;
+      }
+
+      addHoliday(new Date(year, 0, 1), '元日');
+      addHoliday(nthMondayOfMonth(year, 1, 2), '成人の日');
+      addHoliday(new Date(year, 1, 11), '建国記念の日');
+      addHoliday(new Date(year, 1, 23), '天皇誕生日');
+      addHoliday(new Date(year, 2, equinoxDay(year, 'vernal')), '春分の日');
+      addHoliday(new Date(year, 3, 29), '昭和の日');
+      addHoliday(new Date(year, 4, 3), '憲法記念日');
+      addHoliday(new Date(year, 4, 4), 'みどりの日');
+      addHoliday(new Date(year, 4, 5), 'こどもの日');
+      addHoliday(nthMondayOfMonth(year, 7, 3), '海の日');
+      addHoliday(new Date(year, 7, 11), '山の日');
+      addHoliday(nthMondayOfMonth(year, 9, 3), '敬老の日');
+      addHoliday(new Date(year, 8, equinoxDay(year, 'autumnal')), '秋分の日');
+      addHoliday(nthMondayOfMonth(year, 10, 2), 'スポーツの日');
+      addHoliday(new Date(year, 10, 3), '文化の日');
+      addHoliday(new Date(year, 10, 23), '勤労感謝の日');
+
+      // 国民の休日：前後を祝日に挟まれた（日曜でない）平日
+      var sortedDates = Object.keys(holidays).map(function (k) { return new Date(k); }).sort(function (a, b) { return a - b; });
+      var bridgeDays = [];
+      for (var i = 0; i < sortedDates.length - 1; i++) {
+        var diffDays = Math.round((sortedDates[i + 1] - sortedDates[i]) / 86400000);
+        if (diffDays === 2) {
+          var mid = new Date(sortedDates[i].getFullYear(), sortedDates[i].getMonth(), sortedDates[i].getDate() + 1);
+          if (mid.getDay() !== 0) bridgeDays.push(mid);
+        }
+      }
+      bridgeDays.forEach(function (d) { addHoliday(d, '国民の休日'); });
+
+      // 振替休日：日曜にあたる祝日の直後で祝日でない最初の日
+      sortedDates = Object.keys(holidays).map(function (k) { return new Date(k); }).sort(function (a, b) { return a - b; });
+      var substituteDays = [];
+      sortedDates.forEach(function (d) {
+        if (d.getDay() === 0) {
+          var next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+          while (holidays[dateKey(next)]) {
+            next = new Date(next.getFullYear(), next.getMonth(), next.getDate() + 1);
+          }
+          substituteDays.push(next);
+        }
+      });
+      substituteDays.forEach(function (d) { addHoliday(d, '振替休日'); });
+
+      holidayCacheByYear[year] = holidays;
+      return holidays;
+    }
+
+    function isBusinessDay(date) {
+      var day = date.getDay();
+      if (day === 0 || day === 6) return false;
+      var holidays = getJapaneseHolidays(date.getFullYear());
+      return !holidays[dateKey(date)];
+    }
+
+    function getNextBusinessDay(fromDate) {
+      var target = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate() + 1);
+      while (!isBusinessDay(target)) {
+        target = new Date(target.getFullYear(), target.getMonth(), target.getDate() + 1);
+      }
+      return target;
+    }
+
     function updateDateDisplay() {
       var today = new Date();
-      var target = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      var target = getNextBusinessDay(today);
       dateEl.textContent = target.getFullYear() + '年' + (target.getMonth() + 1) + '月' + target.getDate() + '日（' + weekdays[target.getDay()] + '）';
     }
 
     updateDateDisplay();
+
+    // ---- チーム表示の表示／非表示切り替え ----
+    var roomEl = document.querySelector('.room');
+    var teamToggleButton = document.getElementById('team-toggle-button');
+
+    teamToggleButton.addEventListener('click', function () {
+      var hidden = roomEl.classList.toggle('hide-teams');
+      teamToggleButton.textContent = hidden ? '🧑‍🤝‍🧑 チーム表示を表示' : '🧑‍🤝‍🧑 チーム表示を隠す';
+    });
 
     var seatAssignments = {}; // seatNumber -> personId
     var assignmentTimestamps = {}; // personId -> Date（選択した時刻）
