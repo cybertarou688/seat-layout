@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ファシリテータ表</title>
+<title>ファシリテータ予定表</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -21,6 +21,9 @@
     --holiday-bg: #FEF2F2;
     --holiday-border: #FECACA;
     --holiday-text: #DC2626;
+    --designated-bg: #F5F3FF;
+    --designated-border: #DDD6FE;
+    --designated-text: #7C3AED;
     --weekend-bg: #F1F5F9;
     --border-color: #E2E8F0;
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -114,7 +117,7 @@
   }
   .nav-select:focus { border-color: var(--primary); }
 
-  .action-button {
+  .today-button {
     font-family: "Noto Sans JP", sans-serif;
     font-size: 13px;
     font-weight: 500;
@@ -127,7 +130,7 @@
     box-shadow: var(--shadow);
     transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .action-button:hover { background: #F1F5F9; border-color: #CBD5E1; }
+  .today-button:hover { background: #F1F5F9; border-color: #CBD5E1; }
 
   /* ---- 凡例 ---- */
   .legend {
@@ -151,6 +154,7 @@
   }
   .legend-swatch.sw-business { background: var(--card-bg); border: 1px solid var(--border-color); }
   .legend-swatch.sw-holiday { background: var(--holiday-bg); border: 1px solid var(--holiday-border); }
+  .legend-swatch.sw-designated { background: var(--designated-bg); border: 1px solid var(--designated-border); }
   .legend-swatch.sw-weekend { background: var(--weekend-bg); border: 1px solid var(--border-color); }
   .legend-swatch.sw-today { background: var(--card-bg); border: 2px solid var(--primary); }
   .legend-swatch.sw-overridden { background: #FEF3C7; border: 1px solid #F59E0B; }
@@ -198,8 +202,22 @@
 
   .cal-cell.cal-weekend { background: var(--weekend-bg); }
   .cal-cell.cal-holiday { background: var(--holiday-bg); border-color: var(--holiday-border); }
+  .cal-cell.cal-designated { background: var(--designated-bg); border-color: var(--designated-border); }
 
   .cal-cell.cal-today { border: 2px solid var(--primary); }
+
+  .cal-cell.cal-designated::before {
+    content: "指定休";
+    position: absolute;
+    top: 0; right: 0;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 700;
+    font-size: 9px;
+    color: #FFFFFF;
+    background: var(--designated-text);
+    padding: 1px 5px;
+    border-bottom-left-radius: 4px;
+  }
 
   .cal-cell.cal-overridden::before {
     content: "交代";
@@ -230,6 +248,17 @@
     font-size: clamp(9px, 1.2vw, 10px);
     font-weight: 500;
     color: var(--holiday-text);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cal-designated-name {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: clamp(9px, 1.2vw, 10px);
+    font-weight: 500;
+    color: var(--designated-text);
     line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -343,6 +372,102 @@
 
   .empty-note { font-size: 12px; color: var(--sub-ink); font-weight: 400; }
 
+  .designated-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .designated-form input[type="date"],
+  .designated-form input[type="text"] {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 12px;
+    color: var(--ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 8px;
+    outline: none;
+  }
+  .designated-form input[type="date"] { flex: 1 1 140px; }
+  .designated-form input[type="text"] { flex: 1 1 100px; }
+  .designated-form input:focus { border-color: var(--designated-text); }
+
+  .designated-add-button {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+    background: var(--designated-text);
+    border: 1px solid var(--designated-text);
+    border-radius: 6px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .designated-add-button:hover { opacity: 0.88; }
+
+  .designated-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 500;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+  .designated-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .designated-list li:last-child { border-bottom: none; }
+  .designated-list .dl-date {
+    font-family: "Inter", monospace;
+    color: var(--designated-text);
+    flex-shrink: 0;
+  }
+  .designated-list .dl-name { color: var(--ink); flex: 1; }
+  .designated-list .dl-remove {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sub-ink);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .designated-list .dl-remove:hover { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+
+  .designated-sync-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #F1F5F9;
+  }
+  .designated-sync-button {
+    font-family: "Noto Sans JP", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--designated-text);
+    background: var(--designated-bg);
+    border: 1px solid var(--designated-border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    flex: 1 1 auto;
+    transition: opacity 0.15s ease;
+  }
+  .designated-sync-button:hover { opacity: 0.8; }
+
   .footnote {
     margin-top: 20px;
     font-size: 11px;
@@ -354,35 +479,12 @@
     border-radius: 8px;
     border: 1px solid var(--border-color);
   }
-
-  .file-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .file-btn {
-    flex: 1;
-    font-family: "Noto Sans JP", sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ink);
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 6px 10px;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: background 0.15s ease, border-color 0.15s ease;
-    display: inline-block;
-  }
-  .file-btn:hover { background: #F1F5F9; border-color: #CBD5E1; }
 </style>
 </head>
 <body>
   <div class="room">
     <div class="hero">
-      <p class="hero-title" id="hero-title">予定表</p>
+      <p class="hero-title" id="hero-title">ファシリテータ予定表</p>
     </div>
 
     <div class="nav-bar">
@@ -391,13 +493,14 @@
       <button type="button" class="nav-arrow" id="next-month" aria-label="次の月">›</button>
       <select class="nav-select" id="year-select"></select>
       <select class="nav-select" id="month-select"></select>
-      <button type="button" class="action-button" id="today-button">今月に戻る</button>
+      <button type="button" class="today-button" id="today-button">今月に戻る</button>
     </div>
 
     <div class="legend">
       <span class="legend-item"><span class="legend-swatch sw-business"></span>営業日</span>
       <span class="legend-item"><span class="legend-swatch sw-weekend"></span>土日</span>
       <span class="legend-item"><span class="legend-swatch sw-holiday"></span>祝日</span>
+      <span class="legend-item"><span class="legend-swatch sw-designated"></span>指定休</span>
       <span class="legend-item"><span class="legend-swatch sw-today"></span>本日</span>
       <span class="legend-item"><span class="legend-swatch sw-overridden"></span>交代あり（手動変更）</span>
     </div>
@@ -420,19 +523,33 @@
       </div>
       <div class="panel">
         <div class="panel-header">
-          <p class="panel-title">手動での交代と共有</p>
-          <button type="button" class="reset-button" id="reset-overrides">全てリセット</button>
+          <p class="panel-title">手動での交代</p>
+          <button type="button" class="reset-button" id="reset-overrides">交代を全てリセット</button>
         </div>
-        <p class="empty-note" style="line-height:1.6; margin-bottom:10px;">
-          担当を変更したら「ファイルに書き出し」を押し、保存されたJSONファイルをファイルサーバーの共有フォルダに配置してください。確認時は「ファイルから読み込み」で最新の状態を反映できます。
-        </p>
-        <div class="file-actions">
-          <button type="button" class="file-btn" id="export-json">ファイルに書き出し</button>
-          <label class="file-btn" style="margin:0;">
-            ファイルから読み込み
-            <input type="file" id="import-json" accept=".json" style="display:none;">
-          </label>
+        <p class="empty-note" style="line-height:1.6;">各営業日のプルダウンから担当者を選ぶと、自動ローテーションを上書きして交代できます。「自動」に戻すと元のローテーションに戻ります。変更内容はこのブラウザに保存され、次回開いたときも維持されます。</p>
+        <div class="designated-sync-row">
+          <button type="button" class="designated-sync-button" id="overrides-export">⬇ エクスポート（ファイル保存）</button>
+          <button type="button" class="designated-sync-button" id="overrides-import">⬆ インポート（ファイル読込）</button>
+          <input type="file" id="overrides-import-input" accept="application/json,.json" style="display:none;">
         </div>
+        <p class="empty-note" style="line-height:1.6; margin-top:8px;">ファイルサーバーで共有する場合：交代を変更したら「エクスポート」で交代.jsonを保存し、共有フォルダ内の同名ファイルを上書きしてください。他のメンバーはページを開いたら「インポート」でそのファイルを選ぶと最新の交代に同期されます。</p>
+      </div>
+      <div class="panel">
+        <p class="panel-title">指定休の設定</p>
+        <p class="empty-note" id="designated-status" style="margin:-4px 0 10px;">同期状態を確認しています…</p>
+        <form class="designated-form" id="designated-form">
+          <input type="date" id="designated-date" required>
+          <input type="text" id="designated-label" placeholder="名称（任意・例：夏季休暇）" maxlength="20">
+          <button type="submit" class="designated-add-button">追加</button>
+        </form>
+        <ul class="designated-list" id="designated-list"></ul>
+        <div class="designated-sync-row">
+          <button type="button" class="designated-sync-button" id="designated-export">⬇ エクスポート（ファイル保存）</button>
+          <button type="button" class="designated-sync-button" id="designated-import">⬆ インポート（ファイル読込）</button>
+          <input type="file" id="designated-import-input" accept="application/json,.json" style="display:none;">
+        </div>
+        <p class="empty-note" style="line-height:1.6; margin-top:8px;">営業日でも指定休に設定した日はファシリテータの割り当てをスキップし、ローテーションからも除外されます。</p>
+        <p class="empty-note" style="line-height:1.6; margin-top:6px;">ファイルサーバーで共有する場合：誰かが指定休を更新したら「エクスポート」で指定休.jsonを保存し、共有フォルダ内の同名ファイルを上書きしてください。他のメンバーはページを開いたら「インポート」でそのファイルを選ぶと最新の指定休に同期されます。</p>
       </div>
     </div>
 
@@ -444,16 +561,6 @@
 
   <script src="facilitators.js"></script>
   <script>
-    // ============================================================
-    // タイトルのランダム表示設定
-    // ============================================================
-    (function setRandomHeroTitle() {
-      var roles = ['ファシリテータ','ファシリテータ','ファシリテータ','ファシリテータ','ファシリテータ','ファシリテータ','ファシリテータ','メイド', 'ファシリテータ','パシリテータ', 'ファシリテータ','お世話係', 'ファシリテータ','執事', '御用聞き', 'ファシリテータ','生殺与奪権'];
-      var randomIndex = Math.floor(Math.random() * roles.length);
-      var selectedRole = roles[randomIndex];
-      document.getElementById('hero-title').textContent = selectedRole + '予定表';
-    })();
-
     // ============================================================
     // ユーティリティ
     // ============================================================
@@ -553,7 +660,104 @@
     function isBusinessDay(d) {
       var dow = d.getDay();
       if (dow === 0 || dow === 6) return false;
+      if (getDesignatedHolidayName(d)) return false;
       return !isHoliday(d);
+    }
+
+    // ============================================================
+    // 指定休（会社独自の休日）
+    // ============================================================
+    var DESIGNATED_STORAGE_KEY = 'jintate_designated_holidays_v1';
+
+    function loadDesignatedHolidays() {
+      try {
+        var raw = window.localStorage.getItem(DESIGNATED_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveDesignatedHolidays(map) {
+      try {
+        window.localStorage.setItem(DESIGNATED_STORAGE_KEY, JSON.stringify(map));
+      } catch (e) { }
+    }
+
+    var designatedHolidays = loadDesignatedHolidays();
+
+    function getDesignatedHolidayName(d) {
+      return designatedHolidays[toKey(d)] || null;
+    }
+
+    // ---- 共有ストレージ（組織内で指定休を共有） ----
+    var DESIGNATED_DOC_PATH = 'designated_holidays/shared';
+    var dbNamespace = null;
+    var usingSharedDb = false;
+    var sharedDbFailed = false;
+
+    function updateSharedStatusUI() {
+      var el = document.getElementById('designated-status');
+      if (!el) return;
+      if (usingSharedDb) {
+        el.textContent = '組織内のメンバーと指定休を共有しています。';
+      } else if (sharedDbFailed) {
+        el.textContent = '共有に接続できなかったため、このブラウザにのみ保存されます。下の「エクスポート／インポート」で共有フォルダ経由の同期をご利用ください。';
+      } else if (location.protocol === 'file:') {
+        el.textContent = 'このファイルはローカル保存のみです。共有フォルダ上の他のメンバーと同期するには、下の「エクスポート／インポート」をご利用ください。';
+      } else {
+        el.textContent = '変更内容はこのブラウザにのみ保存されます。共有するには下の「エクスポート／インポート」をご利用ください。';
+      }
+    }
+
+    function persistDesignatedHolidays() {
+      if (usingSharedDb && dbNamespace) {
+        dbNamespace.doc(DESIGNATED_DOC_PATH).set({
+          items: designatedHolidays,
+          updatedAt: new Date().toISOString()
+        }).catch(function () {
+          sharedDbFailed = true;
+          usingSharedDb = false;
+          updateSharedStatusUI();
+          saveDesignatedHolidays(designatedHolidays);
+        });
+      } else {
+        saveDesignatedHolidays(designatedHolidays);
+      }
+    }
+
+    function initSharedDesignatedHolidays() {
+      try {
+        if (!window.claude || typeof window.claude.use !== 'function') {
+          updateSharedStatusUI();
+          return;
+        }
+        window.claude.use('db').then(function (db) {
+          if (!db) {
+            updateSharedStatusUI();
+            return;
+          }
+          dbNamespace = db;
+          var docRef = db.doc(DESIGNATED_DOC_PATH);
+          docRef.onSnapshot(function (snap) {
+            usingSharedDb = true;
+            sharedDbFailed = false;
+            var data = snap.exists ? snap.data() : null;
+            designatedHolidays = (data && data.items) ? data.items : {};
+            renderDesignatedList();
+            renderCalendar();
+            updateSharedStatusUI();
+          }, function () {
+            usingSharedDb = false;
+            sharedDbFailed = true;
+            updateSharedStatusUI();
+          });
+        }).catch(function () {
+          updateSharedStatusUI();
+        });
+      } catch (e) {
+        updateSharedStatusUI();
+      }
     }
 
     // ============================================================
@@ -597,7 +801,6 @@
       return facilitators[idx];
     }
 
-    // ---- 手動交代の保持（localStorage ＆ ファイル入出力） ----
     var STORAGE_KEY = 'jintate_overrides_v1';
 
     function loadOverrides() {
@@ -696,6 +899,7 @@
 
         if (inMonth) {
           var holidayName = isHoliday(cellDate);
+          var designatedName = getDesignatedHolidayName(cellDate);
           if (holidayName) {
             cell.classList.add('cal-holiday');
             var hLabel = document.createElement('div');
@@ -703,6 +907,12 @@
             hLabel.textContent = holidayName;
             cell.appendChild(hLabel);
             holidaysThisMonth.push({ date: cellDate.getDate(), name: holidayName });
+          } else if (designatedName) {
+            cell.classList.add('cal-designated');
+            var dLabel = document.createElement('div');
+            dLabel.className = 'cal-designated-name';
+            dLabel.textContent = designatedName;
+            cell.appendChild(dLabel);
           } else if (dow === 0 || dow === 6) {
             cell.classList.add('cal-weekend');
           } else {
@@ -760,6 +970,7 @@
         holidayListEl.appendChild(li);
         return;
       }
+      list.forEach(type => {}); // placeholder to keep loop structure compatible if needed
       list.forEach(function (h) {
         var li = document.createElement('li');
         var dateSpan = document.createElement('span');
@@ -773,6 +984,126 @@
         holidayListEl.appendChild(li);
       });
     }
+
+    function renderDesignatedList() {
+      var listEl = document.getElementById('designated-list');
+      listEl.innerHTML = '';
+      var keys = Object.keys(designatedHolidays).sort();
+      if (keys.length === 0) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span class="empty-note">登録されている指定休はありません。</span>';
+        listEl.appendChild(li);
+        return;
+      }
+      keys.forEach(function (key) {
+        var li = document.createElement('li');
+
+        var dateSpan = document.createElement('span');
+        dateSpan.className = 'dl-date';
+        var parts = key.split('-');
+        dateSpan.textContent = parts[0] + '/' + parseInt(parts[1], 10) + '/' + parseInt(parts[2], 10);
+
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'dl-name';
+        nameSpan.textContent = designatedHolidays[key];
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'dl-remove';
+        removeButton.textContent = '削除';
+        removeButton.addEventListener('click', function () {
+          delete designatedHolidays[key];
+          persistDesignatedHolidays();
+          renderDesignatedList();
+          renderCalendar();
+        });
+
+        li.appendChild(dateSpan);
+        li.appendChild(nameSpan);
+        li.appendChild(removeButton);
+        listEl.appendChild(li);
+      });
+    }
+
+    document.getElementById('designated-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var dateInput = document.getElementById('designated-date');
+      var labelInput = document.getElementById('designated-label');
+      if (!dateInput.value) return;
+      var parts = dateInput.value.split('-').map(Number);
+      var d = new Date(parts[0], parts[1] - 1, parts[2]);
+      var key = toKey(d);
+      var label = labelInput.value.trim() || '指定休';
+      designatedHolidays[key] = label;
+      persistDesignatedHolidays();
+      dateInput.value = '';
+      labelInput.value = '';
+      renderDesignatedList();
+      renderCalendar();
+    });
+
+    // ---- ファイルサーバー経由の共有（エクスポート／インポート） ----
+    function exportDesignatedHolidays() {
+      var payload = {
+        type: 'jintate_designated_holidays',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        items: designatedHolidays
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '指定休.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function importDesignatedHolidaysFromFile(file) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var parsed;
+        try {
+          parsed = JSON.parse(reader.result);
+        } catch (e) {
+          window.alert('ファイルの読み込みに失敗しました。指定休.json の形式を確認してください。');
+          return;
+        }
+        var items = (parsed && typeof parsed === 'object' && parsed.items && typeof parsed.items === 'object')
+          ? parsed.items
+          : null;
+        if (!items) {
+          window.alert('このファイルには指定休のデータが見つかりませんでした。');
+          return;
+        }
+        designatedHolidays = items;
+        persistDesignatedHolidays();
+        renderDesignatedList();
+        renderCalendar();
+        window.alert('指定休を読み込みました（' + Object.keys(items).length + '件）。');
+      };
+      reader.onerror = function () {
+        window.alert('ファイルの読み込みに失敗しました。');
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('designated-export').addEventListener('click', function () {
+      exportDesignatedHolidays();
+    });
+
+    var designatedImportInputEl = document.getElementById('designated-import-input');
+    document.getElementById('designated-import').addEventListener('click', function () {
+      designatedImportInputEl.value = '';
+      designatedImportInputEl.click();
+    });
+    designatedImportInputEl.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        importDesignatedHolidaysFromFile(this.files[0]);
+      }
+    });
 
     // ============================================================
     // ナビゲーション操作
@@ -801,7 +1132,8 @@
       currentMonth = parseInt(monthSelectEl.value, 10);
       renderCalendar();
     });
-    resetButtonEl.addEventListener('click', function () {
+    resetButtonEl.getElementById = document.getElementById('reset-overrides');
+    document.getElementById('reset-overrides').addEventListener('click', function () {
       if (Object.keys(overrides).length === 0) return;
       var confirmed = window.confirm('この端末に保存されている手動の交代をすべてリセットし、自動ローテーションに戻します。よろしいですか？');
       if (!confirmed) return;
@@ -810,43 +1142,72 @@
       renderCalendar();
     });
 
-    // ============================================================
-    // ファイルサーバー共有用（エクスポート・インポート）
-    // ============================================================
-    document.getElementById('export-json').addEventListener('click', function() {
-      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(overrides, null, 2));
-      var downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "jintate_settings.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    });
+    // ---- ファイルサーバー経由の共有（手動交代のエクスポート／インポート） ----
+    function exportOverrides() {
+      var payload = {
+        type: 'jintate_overrides',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        items: overrides
+      };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = '交代.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
 
-    document.getElementById('import-json').addEventListener('change', function(event) {
-      var file = event.target.files[0];
-      if (!file) return;
+    function importOverridesFromFile(file) {
       var reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function () {
+        var parsed;
         try {
-          var imported = JSON.parse(e.target.result);
-          if (typeof imported === 'object' && imported !== null) {
-            overrides = imported;
-            saveOverrides(overrides);
-            renderCalendar();
-            alert('交代データを正常に読み込みました。');
-          } else {
-            alert('ファイルの形式が正しくありません。');
-          }
-        } catch (err) {
-          alert('JSONファイルの解析に失敗しました。');
+          parsed = JSON.parse(reader.result);
+        } catch (e) {
+          window.alert('ファイルの読み込みに失敗しました。交代.json の形式を確認してください。');
+          return;
         }
+        var items = (parsed && typeof parsed === 'object' && parsed.items && typeof parsed.items === 'object')
+          ? parsed.items
+          : null;
+        if (!items) {
+          window.alert('このファイルには交代のデータが見つかりませんでした。');
+          return;
+        }
+        overrides = items;
+        saveOverrides(overrides);
+        updateResetButtonState();
+        renderCalendar();
+        window.alert('交代を読み込みました（' + Object.keys(items).length + '件）。');
+      };
+      reader.onerror = function () {
+        window.alert('ファイルの読み込みに失敗しました。');
       };
       reader.readAsText(file);
-      event.target.value = '';
+    }
+
+    document.getElementById('overrides-export').addEventListener('click', function () {
+      exportOverrides();
     });
 
+    var overridesImportInputEl = document.getElementById('overrides-import-input');
+    document.getElementById('overrides-import').addEventListener('click', function () {
+      overridesImportInputEl.value = '';
+      overridesImportInputEl.click();
+    });
+    overridesImportInputEl.addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        importOverridesFromFile(this.files[0]);
+      }
+    });
+
+    renderDesignatedList();
     renderCalendar();
+    initSharedDesignatedHolidays();
   </script>
 </body>
 </html>
