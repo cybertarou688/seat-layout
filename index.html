@@ -23,6 +23,7 @@
     --team-e: #2E8B8B;
     --team-f: #B8447A;
     --team-g: #7A6E2E;
+    --team-h: #5B5EA6;
   }
 
   * { box-sizing: border-box; }
@@ -96,7 +97,8 @@
   .room.hide-teams td.seat.team-d,
   .room.hide-teams td.seat.team-e,
   .room.hide-teams td.seat.team-f,
-  .room.hide-teams td.seat.team-g {
+  .room.hide-teams td.seat.team-g,
+  .room.hide-teams td.seat.team-h {
     border-top: 1.5px solid var(--desk-border-light);
   }
 
@@ -167,6 +169,7 @@
   td.seat.team-e { border-top: 3px solid var(--team-e); }
   td.seat.team-f { border-top: 3px solid var(--team-f); }
   td.seat.team-g { border-top: 3px solid var(--team-g); }
+  td.seat.team-h { border-top: 3px solid var(--team-h); }
 
   td.seat.team-a .seat-team { background: var(--team-a); }
   td.seat.team-b .seat-team { background: var(--team-b); }
@@ -175,6 +178,7 @@
   td.seat.team-e .seat-team { background: var(--team-e); }
   td.seat.team-f .seat-team { background: var(--team-f); }
   td.seat.team-g .seat-team { background: var(--team-g); }
+  td.seat.team-h .seat-team { background: var(--team-h); }
 
   .seat-select {
     width: 100%;
@@ -265,6 +269,7 @@
   .legend-team-e { background: var(--team-e); }
   .legend-team-f { background: var(--team-f); }
   .legend-team-g { background: var(--team-g); }
+  .legend-team-h { background: var(--team-h); }
 
   .panels {
     display: flex;
@@ -823,25 +828,29 @@
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a team-e assignable" data-row="3" data-desk="3" data-position="A" data-seat-number="25">
+          <td class="seat pos-a team-h assignable" data-row="3" data-desk="3" data-position="A" data-seat-number="25">
           <div class="seat-inner">
             <span class="seat-num">25</span>
-            <span class="seat-team">E</span>
+            <span class="seat-team">H</span>
             <select class="seat-select" data-seat-number="25">
               <option value="">-- 未選択 --</option>
             </select>
           </div>
           </td>
-          <td class="seat pos-b unavailable" data-row="3" data-desk="3" data-position="B" data-seat-number="26">
+          <td class="seat pos-b team-h assignable" data-row="3" data-desk="3" data-position="B" data-seat-number="26">
           <div class="seat-inner">
             <span class="seat-num">26</span>
+            <span class="seat-team">H</span>
+            <select class="seat-select" data-seat-number="26">
+              <option value="">-- 未選択 --</option>
+            </select>
           </div>
           </td>
           <td class="gap"></td>
-          <td class="seat pos-a team-f assignable" data-row="3" data-desk="4" data-position="A" data-seat-number="27">
+          <td class="seat pos-a team-h assignable" data-row="3" data-desk="4" data-position="A" data-seat-number="27">
           <div class="seat-inner">
             <span class="seat-num">27</span>
-            <span class="seat-team">F</span>
+            <span class="seat-team">H</span>
             <select class="seat-select" data-seat-number="27">
               <option value="">-- 未選択 --</option>
             </select>
@@ -943,9 +952,9 @@
     <p class="legend">
       座席番号は左上から右方向へ1〜10、次の段は11〜20…と続き、右下の40番まで振っています。<br>
       枠でつながった2マスが1つの机（2人がけ）です。全20机 × 2席 ＝ 40席。<br>
-      斜線の席（26、28、29、30、35〜40）は使用できません。<br>
+      斜線の席（28、29、30、35〜40）は使用できません。<br>
       各席の下にあるプルダウンから選択者を選ぶと、その席が赤色になり名前が表示されます。すでに他の席に割り当て済みの人は選べません。<br>
-      席上部の色付きバッジはチームを表します：<span class="legend-team legend-team-a">A</span> 1・2・11・12　<span class="legend-team legend-team-b">B</span> 21・22・31・32　<span class="legend-team legend-team-c">C</span> 3・4・13・14　<span class="legend-team legend-team-d">D</span> 23・24・33・34　<span class="legend-team legend-team-e">E</span> 5・6・15・16・25　<span class="legend-team legend-team-f">F</span> 7・8・17・18・27　<span class="legend-team legend-team-g">G</span> 9・10・19・20<br>
+      席上部の色付きバッジはチームを表します：<span class="legend-team legend-team-a">A</span> 1・2・11・12　<span class="legend-team legend-team-b">B</span> 21・22・31・32　<span class="legend-team legend-team-c">C</span> 3・4・13・14　<span class="legend-team legend-team-d">D</span> 23・24・33・34　<span class="legend-team legend-team-e">E</span> 5・6・15・16　<span class="legend-team legend-team-f">F</span> 7・8・17・18　<span class="legend-team legend-team-g">G</span> 9・10・19・20　<span class="legend-team legend-team-h">H</span> 25・26・27<br>
       設定した座席は毎日0:00にリセットされます。
     </p>
 
