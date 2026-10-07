@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>発表順決めツール</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1f2430;--sub:#667085;--line:#dfe3ec;--accent:#3b5bdb;--accent-t:#fff;--warn:#d9480f;--ok:#2b8a3e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161c;--card:#1d2028;--text:#e8eaf0;--sub:#9aa3b5;--line:#323746;--accent:#6c8cff;--accent-t:#0e1220;--warn:#ff9f6b;--ok:#69db7c}}
+:root[data-theme="dark"]{--bg:#14161c;--card:#1d2028;--text:#e8eaf0;--sub:#9aa3b5;--line:#323746;--accent:#6c8cff;--accent-t:#0e1220;--warn:#ff9f6b;--ok:#69db7c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif;line-height:1.6}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.4rem;margin:8px 0 4px}
+.lead{color:var(--sub);font-size:.9rem;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+label.t{font-weight:600;display:block;margin-bottom:6px}
+textarea{width:100%;min-height:200px;resize:vertical;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.count{margin-left:auto;font-size:.9rem;color:var(--sub)}
+.count.over{color:var(--warn);font-weight:700}
+button,.filebtn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-t);border-color:var(--accent);font-weight:700;padding:11px 20px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.filebtn input{display:none}
+.msg{min-height:1.4em;font-size:.88rem;margin-top:8px;color:var(--warn)}
+ol{list-style:none;margin:12px 0 0;padding:0;counter-reset:n}
+li{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:var(--bg);animation:in .3s ease both}
+li .no{flex:none;min-width:2.4em;text-align:center;font-weight:700;background:var(--accent);color:var(--accent-t);border-radius:8px;padding:2px 8px}
+li .nm{word-break:break-all}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){li{animation:none}}
+.empty{color:var(--sub);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>🎲 発表順決めツール</h1>
+  <p class="lead">個人名・チーム名を1行に1つずつ入力(カンマ区切りも可)。最大31件まで。</p>
+
+  <section class="card">
+    <label class="t" for="src">名前リスト</label>
+    <textarea id="src" placeholder="例:&#10;Aチーム&#10;田中さん&#10;佐藤さん"></textarea>
+    <div class="row">
+      <label class="filebtn">📄 テキストファイルを読み込む<input type="file" id="file" accept=".txt,.csv,text/plain"></label>
+      <button id="clear">クリア</button>
+      <span class="count" id="count">0 / 31</span>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+    <div class="row"><button class="primary" id="go" disabled>順番を決める</button></div>
+  </section>
+
+</main>
+
+<script>
+const MAX = 31;
+const $ = id => document.getElementById(id);
+const src = $('src'), go = $('go'), cnt = $('count'), msg = $('msg');
+let out = null;
+let last = [];
+
+function parse(text){
+  return text.split(/[\r\n,、，\t]+/).map(s => s.trim()).filter(Boolean);
+}
+function update(){
+  const items = parse(src.value);
+  const n = items.length;
+  cnt.textContent = n + ' / ' + MAX;
+  cnt.classList.toggle('over', n > MAX);
+  const dup = items.filter((v,i) => items.indexOf(v) !== i);
+  let m = '';
+  if(n > MAX) m = `${MAX}件を超えています(${n - MAX}件オーバー)。減らしてください。`;
+  else if(dup.length) m = '同じ名前が含まれています:' + [...new Set(dup)].join('、');
+  msg.textContent = m;
+  go.disabled = n < 2 || n > MAX;
+}
+function randInt(max){ // 0..max-1 (偏りのない乱数)
+  const lim = Math.floor(0x100000000 / max) * max;
+  const a = new Uint32Array(1);
+  do { crypto.getRandomValues(a); } while(a[0] >= lim);
+  return a[0] % max;
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = randInt(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function render(list){
+  const ol = document.createElement('ol');
+  list.forEach((name, i) => {
+    const li = document.createElement('li');
+    li.style.animationDelay = (i * 60) + 'ms';
+    const no = document.createElement('span'); no.className = 'no'; no.textContent = i + 1;
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = name;
+    li.append(no, nm);
+    ol.appendChild(li);
+  });
+  if(!out){
+    out = document.createElement('section');
+    out.className = 'card';
+    document.querySelector('main').appendChild(out);
+  }
+  out.replaceChildren(ol);
+}
+
+src.addEventListener('input', update);
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const POPUP_JS = `
+const st=document.getElementById('st');
+function rr(x,a,b,w,h,r,fill,stroke){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();x.fillStyle=fill;x.fill();if(stroke){x.strokeStyle=stroke;x.lineWidth=1;x.stroke();}}
+function draw(){
+ const d=matchMedia('(prefers-color-scheme: dark)').matches;
+ const c=d?{bg:'#14161c',cd:'#1d2028',tx:'#e8eaf0',ln:'#323746',ac:'#6c8cff',at:'#0e1220'}:{bg:'#f6f7fb',cd:'#ffffff',tx:'#1f2430',ln:'#dfe3ec',ac:'#3b5bdb',at:'#ffffff'};
+ const S=2,W=720,P=24,RH=56,G=8,H=P*2+56+L.length*(RH+G)-G;
+ const cv=document.createElement('canvas');cv.width=W*S;cv.height=H*S;
+ const x=cv.getContext('2d');x.scale(S,S);
+ x.fillStyle=c.bg;x.fillRect(0,0,W,H);
+ const f='"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif';
+ x.textBaseline='middle';x.textAlign='left';x.fillStyle=c.tx;x.font='700 26px '+f;x.fillText('発表順',P,P+20);
+ L.forEach((n,i)=>{
+  const y=P+56+i*(RH+G);
+  rr(x,P,y,W-P*2,RH,12,c.cd,c.ln);
+  rr(x,P+12,y+10,56,36,8,c.ac);
+  x.fillStyle=c.at;x.font='700 20px '+f;x.textAlign='center';x.fillText(String(i+1),P+40,y+29);
+  x.fillStyle=c.tx;x.textAlign='left';x.font='20px '+f;
+  let t=n;const mw=W-P*2-100;
+  while(t.length>1&&x.measureText(t).width>mw)t=t.slice(0,-1);
+  if(t!==n)t=t.slice(0,-1)+'…';
+  x.fillText(t,P+84,y+29);
+ });
+ return cv;
+}
+function blobP(){return new Promise(r=>draw().toBlob(r,'image/png'));}
+function save(b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='presentation-order.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
+document.getElementById('cp').onclick=async()=>{
+ try{await navigator.clipboard.write([new ClipboardItem({'image/png':blobP()})]);st.textContent='画像をコピーしました';}
+ catch(e){save(await blobP());st.textContent='コピーできないため画像を保存しました';}
+};
+document.getElementById('sv').onclick=async()=>{save(await blobP());st.textContent='画像を保存しました';};
+`;
+function resultPage(list){
+  const rows = list.map((n, i) => `<li style="animation-delay:${i*60}ms"><span class="no">${i+1}</span><span class="nm">${esc(n)}</span></li>`).join('');
+  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>発表順の結果</title><style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1f2430;--line:#dfe3ec;--accent:#3b5bdb;--at:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#14161c;--card:#1d2028;--text:#e8eaf0;--line:#323746;--accent:#6c8cff;--at:#0e1220}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 40px}h1{font-size:1.5rem;margin:0 0 16px}
+ol{list-style:none;margin:0;padding:0}li{display:flex;align-items:center;gap:14px;padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:1.25rem;animation:in .3s ease both}
+.no{flex:none;min-width:2.6em;text-align:center;font-weight:700;background:var(--accent);color:var(--at);border-radius:8px;padding:2px 8px}.nm{word-break:break-all}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){li{animation:none}}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 14px;border-radius:10px}#st{font-size:.85rem;opacity:.75}
+</style></head><body><main><h1>🎲 発表順</h1><div class="bar"><button id="cp">🖼 画像をコピー</button><button id="sv">💾 画像を保存</button><span id="st" role="status"></span></div><ol>${rows}</ol></main><script>const L=${JSON.stringify(list).replace(/</g,'\\u003c')};${POPUP_JS}<\/script></body></html>`;
+}
+function openResult(){
+  if(!last.length) return;
+  const w = window.open('', 'presentationOrderResult', 'width=640,height=800,resizable=yes,scrollbars=yes');
+  if(!w){
+    render(last);
+    msg.textContent = '別窓がブロックされたため、下に結果を表示しました。ポップアップを許可すると別窓で開けます。';
+    return false;
+  }
+  w.document.open(); w.document.write(resultPage(last)); w.document.close(); w.focus();
+  if(out){ out.remove(); out = null; }
+  msg.textContent = '';
+  return true;
+}
+go.addEventListener('click', () => {
+  last = shuffle(parse(src.value));
+  openResult();
+});
+$('clear').addEventListener('click', () => {
+  src.value = ''; last = [];
+  if(out){ out.remove(); out = null; }
+  update();
+});
+$('file').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => { src.value = String(r.result).replace(/^\uFEFF/, ''); update(); };
+  r.onerror = () => { msg.textContent = 'ファイルを読み込めませんでした。'; };
+  r.readAsText(f, 'UTF-8');
+  e.target.value = '';
+});
+update();
+</script>
+</body>
+</html>
