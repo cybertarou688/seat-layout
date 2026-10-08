@@ -575,13 +575,52 @@
   }
 
   .roulette-close:hover { background: #EFE6D2; }
+
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .copy-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--board);
+    color: var(--board-text);
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 200;
+  }
+
+  .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .preview-overlay {
+    position: fixed; inset: 0;
+    background: rgba(59, 50, 38, 0.6);
+    display: none; align-items: center; justify-content: center;
+    z-index: 300; padding: 16px;
+  }
+  .preview-overlay.open { display: flex; }
+  .preview-modal {
+    background: var(--paper); border-radius: 6px; padding: 18px;
+    max-width: 96vw; max-height: 94vh; overflow: auto; text-align: center;
+  }
+  .preview-modal p { margin: 0 0 12px; font-size: 13px; line-height: 1.7; }
+  .preview-modal img { max-width: 100%; height: auto; border: 1px solid var(--desk-border-light); }
+  .preview-actions { margin-top: 12px; display: flex; gap: 10px; justify-content: center; }
 </style>
 </head>
 <body>
   <div class="room">
     <div class="room-header">
       <p class="date-display" id="date-display"></p>
-      <button type="button" class="team-toggle-button" id="team-toggle-button">🧑‍🤝‍🧑 チーム表示を隠す</button>
+      <div class="header-actions">
+        <button type="button" class="team-toggle-button" id="copy-image-button">📋 画像をコピー</button>
+        <button type="button" class="team-toggle-button" id="download-image-button">💾 画像を保存</button>
+        <button type="button" class="team-toggle-button" id="team-toggle-button">🧑‍🤝‍🧑 チーム表示を隠す</button>
+      </div>
     </div>
     <p class="room-title">座席レイアウト（1机2人がけ ×5列 ×縦4列 ＝ 全40席)</p>
     <div class="board">教卓 ／ ディスプレイ</div>
@@ -979,6 +1018,19 @@
       </div>
     </div>
   </div>
+
+  <div class="preview-overlay" id="preview-overlay">
+    <div class="preview-modal">
+      <p id="preview-message">画像を右クリック（スマホは長押し）→「画像をコピー」でコピーできます。</p>
+      <img id="preview-image" alt="座席表">
+      <div class="preview-actions">
+        <button type="button" class="team-toggle-button" id="preview-download">💾 PNGを保存</button>
+        <button type="button" class="team-toggle-button" id="preview-close">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="copy-toast" id="copy-toast"></div>
 
   <div class="roulette-overlay" id="roulette-overlay">
     <div class="roulette-modal">
@@ -1496,7 +1548,262 @@
       }, msUntilMidnight);
     }
 
+
     scheduleMidnightReset();
+  </script>
+
+  <script>
+  // 画像コピー機能：メインスクリプトとは独立して動作する
+  (function () {
+    var btn = document.getElementById('copy-image-button');
+    var toastEl = document.getElementById('copy-toast');
+    var overlay = document.getElementById('preview-overlay');
+    var previewImg = document.getElementById('preview-image');
+    var toastTimer = null;
+    var lastCanvas = null;
+
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+    }
+
+    function rr(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r[0], y);
+      ctx.lineTo(x + w - r[1], y); ctx.arcTo(x + w, y, x + w, y + r[1], r[1] || 0.001);
+      ctx.lineTo(x + w, y + h - r[2]); ctx.arcTo(x + w, y + h, x + w - r[2], y + h, r[2] || 0.001);
+      ctx.lineTo(x + r[3], y + h); ctx.arcTo(x, y + h, x, y + h - r[3], r[3] || 0.001);
+      ctx.lineTo(x, y + r[0]); ctx.arcTo(x, y, x + r[0], y, r[0] || 0.001);
+      ctx.closePath();
+    }
+
+    function fitText(ctx, text, cx, cy, maxW, size, family, weight) {
+      ctx.font = weight + ' ' + size + 'px ' + family;
+      while (ctx.measureText(text).width > maxW && size > 7) {
+        size -= 0.5;
+        ctx.font = weight + ' ' + size + 'px ' + family;
+      }
+      ctx.fillText(text, cx, cy);
+    }
+
+    function buildCanvas() {
+      var SCALE = 2, PAD = 32, CONTENT_W = 960, GAP_W = 24;
+      var SEAT_W = (CONTENT_W - GAP_W * 4) / 10, SEAT_H = 84, ROW_GAP = 22;
+      var DATE_H = 44, BOARD_H = 34, BOARD_MARGIN = 30;
+      var cs = getComputedStyle(document.documentElement);
+      function v(n) { return cs.getPropertyValue(n).trim(); }
+      var SANS = '"Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif';
+      var MONO = '"JetBrains Mono", monospace';
+
+      var room = document.querySelector('.room');
+      var hideTeams = room.classList.contains('hide-teams');
+      var dateText = (document.getElementById('date-display') || {}).textContent || '';
+      var rows = Array.prototype.slice.call(document.querySelectorAll('table.seat-map tr'));
+
+      var tableH = 0;
+      rows.forEach(function (tr) { tableH += tr.classList.contains('gap-row') ? ROW_GAP : SEAT_H; });
+      var W = CONTENT_W + PAD * 2;
+      var H = PAD + DATE_H + 16 + BOARD_H + BOARD_MARGIN + tableH + PAD;
+
+      var canvas = document.createElement('canvas');
+      canvas.width = W * SCALE; canvas.height = H * SCALE;
+      var ctx = canvas.getContext('2d');
+      ctx.scale(SCALE, SCALE);
+      ctx.textBaseline = 'middle';
+
+      ctx.fillStyle = v('--paper') || '#F5F1E7';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = v('--ink');
+      ctx.font = '500 32px ' + MONO + ', ' + SANS;
+      ctx.fillText(dateText, PAD, PAD + DATE_H / 2);
+
+      var boardY = PAD + DATE_H + 16;
+      ctx.fillStyle = v('--board');
+      rr(ctx, PAD, boardY, CONTENT_W, BOARD_H, [3, 3, 3, 3]); ctx.fill();
+      ctx.textAlign = 'center';
+      ctx.fillStyle = v('--board-text');
+      ctx.font = '400 13px ' + SANS;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '4px';
+      ctx.fillText('教卓 ／ ディスプレイ', PAD + CONTENT_W / 2, boardY + BOARD_H / 2);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+
+      var y = boardY + BOARD_H + BOARD_MARGIN;
+      rows.forEach(function (tr) {
+        if (tr.classList.contains('gap-row')) { y += ROW_GAP; return; }
+        var x = PAD;
+        Array.prototype.slice.call(tr.children).forEach(function (td) {
+          if (!td.classList.contains('seat')) { x += GAP_W; return; }
+
+          var num = td.getAttribute('data-seat-number');
+          var unavailable = td.classList.contains('unavailable');
+          var selected = td.classList.contains('selected');
+          var isA = td.classList.contains('pos-a');
+          var radii = isA ? [3, 0, 0, 3] : [0, 3, 3, 0];
+
+          ctx.fillStyle = unavailable ? '#E4E0D4' : (selected ? '#C0392B' : v('--desk'));
+          rr(ctx, x, y, SEAT_W, SEAT_H, radii); ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = selected ? '#8E2A1F' : v('--desk-border-light');
+          ctx.stroke();
+
+          var m = td.className.match(/team-([a-h])/);
+          var teamColor = m ? v('--team-' + m[1]) : null;
+          var showTeam = !!teamColor && !hideTeams;
+          if (showTeam) {
+            ctx.fillStyle = teamColor;
+            ctx.fillRect(x + (isA ? 2 : 0), y, SEAT_W - 2, 3);
+          }
+
+          if (unavailable) {
+            ctx.save();
+            ctx.beginPath(); ctx.rect(x, y, SEAT_W, SEAT_H); ctx.clip();
+            ctx.strokeStyle = v('--desk-border'); ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(x, y + SEAT_H); ctx.lineTo(x + SEAT_W, y); ctx.stroke();
+            ctx.restore();
+          }
+
+          var cx = x + SEAT_W / 2;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = unavailable ? '#A79C87' : (selected ? '#FCEEEA' : v('--seat-number'));
+          ctx.font = '500 16px ' + MONO;
+          ctx.fillText(num, cx, unavailable ? y + SEAT_H / 2 : (showTeam ? y + 20 : y + 26));
+
+          if (!unavailable) {
+            if (showTeam) {
+              ctx.fillStyle = teamColor;
+              rr(ctx, cx - 9, y + 34, 18, 13, [6.5, 6.5, 6.5, 6.5]); ctx.fill();
+              ctx.fillStyle = '#FFFFFF';
+              ctx.font = '700 10px ' + MONO;
+              ctx.fillText(m[1].toUpperCase(), cx, y + 40.8);
+            }
+            // 名前はプルダウンの表示内容から直接取得
+            var sel = td.querySelector('select.seat-select');
+            var name = '';
+            if (sel && sel.value && sel.selectedIndex >= 0) name = sel.options[sel.selectedIndex].textContent;
+            if (name) {
+              var bw = SEAT_W - 12, bh = 22, by = showTeam ? y + 53 : y + 46;
+              ctx.fillStyle = '#FFFFFF';
+              rr(ctx, cx - bw / 2, by, bw, bh, [2, 2, 2, 2]); ctx.fill();
+              ctx.lineWidth = 1; ctx.strokeStyle = '#8E2A1F'; ctx.stroke();
+              ctx.fillStyle = v('--ink');
+              fitText(ctx, name, cx, by + bh / 2 + 0.5, bw - 8, 12, SANS, '500');
+            }
+          }
+          x += SEAT_W;
+        });
+        y += SEAT_H;
+      });
+      return canvas;
+    }
+
+    function download(canvas) {
+      var d = new Date();
+      var stamp = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+      var filename = '座席表_' + stamp + '.png';
+      function save(href, revoke) {
+        var a = document.createElement('a');
+        a.download = filename;
+        a.href = href;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        if (revoke) setTimeout(function () { URL.revokeObjectURL(href); }, 4000);
+      }
+      if (canvas.toBlob && window.URL && URL.createObjectURL) {
+        canvas.toBlob(function (blob) {
+          if (blob) save(URL.createObjectURL(blob), true);
+          else save(canvas.toDataURL('image/png'), false);
+        }, 'image/png');
+      } else {
+        save(canvas.toDataURL('image/png'), false);
+      }
+    }
+
+    function showPreview(canvas) {
+      lastCanvas = canvas;
+      previewImg.src = canvas.toDataURL('image/png');
+      overlay.classList.add('open');
+    }
+
+    function viaClipboardApi(blob) {
+      return new Promise(function (resolve, reject) {
+        try {
+          if (!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem)) {
+            reject(new Error('unsupported')); return;
+          }
+          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(resolve, reject);
+        } catch (e) { reject(e); }
+      });
+    }
+
+    function viaExecCommand(canvas) {
+      return new Promise(function (resolve, reject) {
+        var holder = document.createElement('div');
+        holder.contentEditable = 'true';
+        holder.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0.01;overflow:hidden;';
+        var img = new Image();
+        img.onload = function () {
+          holder.appendChild(img);
+          document.body.appendChild(holder);
+          var range = document.createRange();
+          range.selectNodeContents(holder);
+          var sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(range);
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+          sel.removeAllRanges();
+          document.body.removeChild(holder);
+          ok ? resolve() : reject(new Error('execCommand failed'));
+        };
+        img.onerror = function () { reject(new Error('img error')); };
+        img.src = canvas.toDataURL('image/png');
+      });
+    }
+
+    function run() {
+      toast('画像を作成中…');
+      var canvas;
+      try {
+        canvas = buildCanvas();
+      } catch (e) {
+        console.error(e);
+        toast('画像の作成に失敗しました：' + e.message);
+        return;
+      }
+      canvas.toBlob(function (blob) {
+        var first = blob ? viaClipboardApi(blob) : Promise.reject(new Error('no blob'));
+        first.catch(function () { return viaExecCommand(canvas); })
+          .then(function () { toast('✓ 画像をコピーしました'); })
+          .catch(function (err) {
+            console.warn('copy failed', err);
+            toast('自動コピーできないため、画像を表示します');
+            showPreview(canvas);
+          });
+      }, 'image/png');
+    }
+
+    btn.addEventListener('click', run);
+
+    document.getElementById('download-image-button').addEventListener('click', function () {
+      try {
+        var canvas = buildCanvas();
+        lastCanvas = canvas;
+        download(canvas);
+        toast('✓ 画像を保存しました');
+      } catch (e) {
+        console.error(e);
+        toast('画像の保存に失敗しました：' + e.message);
+      }
+    });
+    document.getElementById('preview-close').addEventListener('click', function () { overlay.classList.remove('open'); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.classList.remove('open'); });
+    document.getElementById('preview-download').addEventListener('click', function () { if (lastCanvas) download(lastCanvas); });
+  })();
   </script>
 </body>
 </html>
