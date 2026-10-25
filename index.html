@@ -576,6 +576,24 @@
 
   .roulette-close:hover { background: #EFE6D2; }
 
+  .roulette-stop {
+    font-family: "Zen Kaku Gothic New", sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #FFFFFF;
+    background: #C0392B;
+    border: 1px solid #8E2A1F;
+    border-radius: 4px;
+    padding: 10px 36px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .roulette-stop:hover { background: #A8321F; }
+  .roulette-stop:active { transform: scale(0.97); }
+  .roulette-stop[hidden], .roulette-close[hidden] { display: none; }
+
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .copy-toast {
@@ -1037,6 +1055,7 @@
       <p class="roulette-person" id="roulette-person"></p>
       <p class="roulette-number" id="roulette-number">--</p>
       <ul class="roulette-bulk-results" id="roulette-bulk-results"></ul>
+      <button type="button" class="roulette-stop" id="roulette-stop" hidden>⏹ ストップ</button>
       <button type="button" class="roulette-close" id="roulette-close">閉じる</button>
     </div>
   </div>
@@ -1294,6 +1313,26 @@
     var rouletteCloseButton = document.getElementById('roulette-close');
     var clearButton = document.getElementById('clear-button');
     var rouletteSpinning = false;
+    var rouletteStopButton = document.getElementById('roulette-stop');
+    var rouletteTimer = null;       // 現在動いているtickのタイマー
+    var rouletteStopHandler = null; // ストップ押下時に呼ぶ関数（回転中のみセット）
+    var bulkAbort = false;          // 一括実行を途中で打ち切るフラグ
+
+    // 回転中は「ストップ」、それ以外は「閉じる」を表示
+    function setSpinUi(spinning) {
+      rouletteStopButton.hidden = !spinning;
+      rouletteCloseButton.hidden = spinning;
+    }
+
+    rouletteStopButton.addEventListener('click', function () {
+      if (!rouletteSpinning) return;
+      if (rouletteStopHandler) {
+        rouletteStopHandler();
+      } else {
+        // 一括実行で、次の人に切り替わる合間に押された場合
+        bulkAbort = true;
+      }
+    });
 
     function shuffleArray(arr) {
       var a = arr.slice();
@@ -1359,25 +1398,38 @@
       }
       roulettePersonEl.textContent = person.name + ' さんは ' + seatNumber + ' 番席です！';
       rouletteSpinning = false;
+      setSpinUi(false);
       refreshRoulettePersonSelect();
     }
 
     function runRouletteSpin(person, availableSeats) {
       var finalSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+      var currentSeat = null;
       var ticks = 0;
       var totalTicks = 22;
       var delay = 60;
 
+      // 回転を止めて、表示されている番号で席を確定する
+      function settle() {
+        clearTimeout(rouletteTimer);
+        rouletteTimer = null;
+        rouletteStopHandler = null;
+        rouletteNumberEl.textContent = currentSeat;
+        finishRouletteSpin(person, currentSeat);
+      }
+
+      rouletteStopHandler = settle;
+
       function tick() {
-        var randomSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
-        rouletteNumberEl.textContent = randomSeat;
+        currentSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+        rouletteNumberEl.textContent = currentSeat;
         ticks++;
         if (ticks < totalTicks) {
           delay = delay * 1.12;
-          setTimeout(tick, delay);
+          rouletteTimer = setTimeout(tick, delay);
         } else {
-          rouletteNumberEl.textContent = finalSeat;
-          finishRouletteSpin(person, finalSeat);
+          currentSeat = finalSeat;
+          settle();
         }
       }
       tick();
@@ -1415,16 +1467,29 @@
       rouletteOverlay.classList.add('open');
       roulettePersonEl.textContent = person.name + ' さんの席を決めています…';
       rouletteNumberEl.textContent = '--';
+      setSpinUi(true);
 
       runRouletteSpin(person, availableSeats);
     });
 
+    function finishBulk(message) {
+      rouletteStopHandler = null;
+      rouletteSpinning = false;
+      setSpinUi(false);
+      roulettePersonEl.textContent = message;
+      rouletteNumberEl.textContent = '🎉';
+      refreshRoulettePersonSelect();
+    }
+
     function processBulkQueue(queue) {
+      if (bulkAbort) {
+        rouletteNumberEl.textContent = '⏹';
+        finishBulk('途中で止めました（残り ' + queue.length + ' 人は未決定です）');
+        return;
+      }
+
       if (queue.length === 0) {
-        rouletteSpinning = false;
-        roulettePersonEl.textContent = '一括ルーレットが完了しました。';
-        rouletteNumberEl.textContent = '🎉';
-        refreshRoulettePersonSelect();
+        finishBulk('一括ルーレットが完了しました。');
         return;
       }
 
@@ -1444,33 +1509,49 @@
       roulettePersonEl.textContent = person.name + ' さんの席を決めています…';
 
       var finalSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+      var currentSeat = null;
       var ticks = 0;
       var totalTicks = 14;
       var delay = 45;
 
+      // 表示されている番号で確定し、結果リストに追加する
+      function commit() {
+        clearTimeout(rouletteTimer);
+        rouletteTimer = null;
+        rouletteStopHandler = null;
+        rouletteNumberEl.textContent = currentSeat;
+
+        var select = document.querySelector('.seat-select[data-seat-number="' + currentSeat + '"]');
+        if (select) {
+          select.value = person.id;
+          select.dispatchEvent(new Event('change'));
+        }
+
+        var li = document.createElement('li');
+        li.innerHTML = '<span class="rb-name"></span><span class="rb-seat"></span>';
+        li.querySelector('.rb-name').textContent = person.name;
+        li.querySelector('.rb-seat').textContent = currentSeat + ' 番';
+        rouletteBulkResultsEl.appendChild(li);
+        rouletteBulkResultsEl.scrollTop = rouletteBulkResultsEl.scrollHeight;
+      }
+
+      // ストップ：この人の席を今の番号で確定して、一括実行を終了する
+      rouletteStopHandler = function () {
+        commit();
+        bulkAbort = true;
+        processBulkQueue(queue);
+      };
+
       function tick() {
-        var randomSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
-        rouletteNumberEl.textContent = randomSeat;
+        currentSeat = availableSeats[Math.floor(Math.random() * availableSeats.length)];
+        rouletteNumberEl.textContent = currentSeat;
         ticks++;
         if (ticks < totalTicks) {
           delay = delay * 1.1;
-          setTimeout(tick, delay);
+          rouletteTimer = setTimeout(tick, delay);
         } else {
-          rouletteNumberEl.textContent = finalSeat;
-
-          var select = document.querySelector('.seat-select[data-seat-number="' + finalSeat + '"]');
-          if (select) {
-            select.value = person.id;
-            select.dispatchEvent(new Event('change'));
-          }
-
-          var li = document.createElement('li');
-          li.innerHTML = '<span class="rb-name"></span><span class="rb-seat"></span>';
-          li.querySelector('.rb-name').textContent = person.name;
-          li.querySelector('.rb-seat').textContent = finalSeat + ' 番';
-          rouletteBulkResultsEl.appendChild(li);
-          rouletteBulkResultsEl.scrollTop = rouletteBulkResultsEl.scrollHeight;
-
+          currentSeat = finalSeat;
+          commit();
           setTimeout(function () { processBulkQueue(queue); }, 250);
         }
       }
@@ -1498,6 +1579,8 @@
       rouletteOverlay.classList.add('open');
       roulettePersonEl.textContent = '一括ルーレットを開始します…';
       rouletteNumberEl.textContent = '--';
+      bulkAbort = false;
+      setSpinUi(true);
 
       var queue = shuffleArray(unassignedPeople);
       processBulkQueue(queue);
